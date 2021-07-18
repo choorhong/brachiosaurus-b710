@@ -12,7 +12,7 @@ const handleError: ErrorRequestHandler = (err, req, res, next) => {
 
 // Initialize environmental variables
 dotenv.config()
-const { MONGO_URI, PORT } = process.env
+const { DATABASE_CONNECTION_STRING, DATABASE, PORT } = process.env
 
 // Initialize app
 const app = express()
@@ -32,9 +32,10 @@ app.use(handleError)
 // })
 
 // Set up database & server
-mongoose.connect(MONGO_URI!, { useUnifiedTopology: true, useNewUrlParser: true })
+if (!DATABASE_CONNECTION_STRING || !DATABASE) throw 'DB UNDEFINED'
+mongoose.connect(`${DATABASE_CONNECTION_STRING}/${DATABASE}`, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
   .then(() => {
-    console.log('Listening on Port', PORT)
+    console.log(`Connected to db @ ${DATABASE_CONNECTION_STRING}/${DATABASE}, listening on Port ${PORT}`)
     app.listen(PORT)
   })
   .catch(err => {
