@@ -43,3 +43,8 @@ If you are using an existing admin user as `DB_USERNAME` then skip below steps.
   ```
   npx sequelize-cli db:migrate
   ```
+
+- Undo previous migration
+  ```
+  npx sequelize-cli db:migrate:undo
+  ```
