@@ -1,20 +1,9 @@
-import { DataTypes, Model, Optional } from 'sequelize'
-import { sequelize } from '.'
-import { UserAttributes } from '../../types/user'
-
-// id is optional at the moment
-interface UserCreationAttributes
-  extends Optional<UserAttributes, 'id'> {}
-
-interface UserInstance
-  extends Model<UserAttributes, UserCreationAttributes>,
-    UserAttributes {
-      createdAt?: Date;
-      updatedAt?: Date;
-    }
+import { DataTypes } from 'sequelize'
+import { sequelize } from './index'
+import { UserInstance } from '../../types/user'
 
 const User = sequelize.define<UserInstance>(
-  'User',
+  'users',
   {
     id: {
       allowNull: false,

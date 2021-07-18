@@ -16,7 +16,7 @@ DB_NAME=<any_db_name>
 2. `yarn start`
 
 ## How to setup database:
-Skip to step 3 if you have postgres installed.
+Skip below 4 steps if you have postgres installed and `psql` configured.
 
 1. Download and install [Postgres](https://postgresapp.com/).
 2. Open up the Postgres app and click "initialize".
