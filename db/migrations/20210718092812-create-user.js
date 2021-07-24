@@ -20,7 +20,7 @@ module.exports = {
         type: DataTypes.STRING
       },
       status: {
-        allowNull: true,
+        allowNull: false,
         defaultValue: 'PENDING',
         type: DataTypes.STRING
       },
@@ -30,7 +30,7 @@ module.exports = {
         type: DataTypes.STRING
       },
       firebaseUserId: {
-        allowNull: true,
+        allowNull: false,
         type: DataTypes.STRING
       },
       createdAt: {
