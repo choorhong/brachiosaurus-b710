@@ -1,4 +1,4 @@
-import { Model, Optional } from 'sequelize/types'
+import { Model } from 'sequelize/types'
 
 export interface UserAttributes {
   id: string;
@@ -9,11 +9,8 @@ export interface UserAttributes {
   firebaseUserId: string;
 }
 
-// id is optional at the moment
-export interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
-
 export interface UserInstance
-  extends Model<UserAttributes, UserCreationAttributes>,
+  extends Model<UserAttributes>,
     UserAttributes {
       createdAt?: Date;
       updatedAt?: Date;
