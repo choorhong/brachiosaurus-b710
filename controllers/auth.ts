@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express'
 import User from '../db/models/user'
 import { generateUUID } from '../helpers'
+import { ROLES, STATUS } from '../types/user'
 
 export const createOrFindUser: RequestHandler = async (req, res, next) => {
   try {
@@ -16,7 +17,8 @@ export const createOrFindUser: RequestHandler = async (req, res, next) => {
         name: firebaseUser.name,
         firebaseUserId: firebaseUser.firebaseUserId,
         email: firebaseUser.email,
-        role: 'EXECUTIVE'
+        role: ROLES.EXECUTIVE,
+        status: STATUS.PENDING
       })
       return res.status(201).json(newUser)
     } else {

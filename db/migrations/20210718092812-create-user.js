@@ -21,7 +21,8 @@ module.exports = {
       },
       status: {
         allowNull: true,
-        type: DataTypes.UUID
+        defaultValue: 'PENDING',
+        type: DataTypes.STRING
       },
       role: {
         allowNull: false,
