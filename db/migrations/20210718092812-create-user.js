@@ -13,11 +13,11 @@ module.exports = {
       },
       email: {
         allowNull: false,
-        type: DataTypes.TEXT
+        type: DataTypes.STRING
       },
       name: {
         allowNull: false,
-        type: DataTypes.INTEGER
+        type: DataTypes.STRING
       },
       status: {
         allowNull: true,

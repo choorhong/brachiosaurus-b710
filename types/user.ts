@@ -3,8 +3,8 @@ import { Model, Optional } from 'sequelize/types'
 export interface UserAttributes {
   id: string;
   email: string;
-  name: number;
-  status: string;
+  name: string;
+  status?: string;
   role: string;
   firebaseUserId: string;
 }

@@ -7,18 +7,18 @@ const User = sequelize.define<UserInstance>(
   {
     id: {
       allowNull: false,
-      autoIncrement: false, // set to true if we are not generating uuid
+      autoIncrement: false,
       primaryKey: true,
       type: DataTypes.UUID,
       unique: true
     },
     email: {
       allowNull: false,
-      type: DataTypes.TEXT
+      type: DataTypes.STRING
     },
     name: {
       allowNull: false,
-      type: DataTypes.INTEGER
+      type: DataTypes.STRING
     },
     status: {
       allowNull: true,
