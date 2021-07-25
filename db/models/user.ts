@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize'
 import { sequelize } from './index'
-import { UserInstance } from '../../types/user'
+import { UserInstance, ROLES, STATUS } from '../../types/user'
 
 const User = sequelize.define<UserInstance>(
   'users',
@@ -21,12 +21,13 @@ const User = sequelize.define<UserInstance>(
       type: DataTypes.STRING
     },
     status: {
-      allowNull: true,
-      type: DataTypes.UUID
+      allowNull: false,
+      defaultValue: STATUS.PENDING,
+      type: DataTypes.STRING
     },
     role: {
       allowNull: false,
-      defaultValue: 'EXECUTIVE',
+      defaultValue: ROLES.EXECUTIVE,
       type: DataTypes.STRING
     },
     firebaseUserId: {
