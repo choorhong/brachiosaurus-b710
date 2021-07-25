@@ -5,6 +5,7 @@ import mongoose from 'mongoose'
 import cors from './middlewares/cors'
 
 import authRoutes from './routes/auth'
+import vesselRoutes from './routes/vessel'
 
 const handleError: ErrorRequestHandler = (err, req, res, next) => {
   res.status(500).json({ message: err.message, statusCode: err.statusCode })
@@ -24,6 +25,7 @@ app.use(express.urlencoded({ extended: false }))
 
 // Configure REST API routes
 app.use('/auth', authRoutes)
+app.use('/vessel', vesselRoutes)
 
 // Configure Express fallback error handler
 app.use(handleError)
@@ -32,12 +34,15 @@ app.use(handleError)
 // })
 
 // Set up database & server
-if (!DATABASE_CONNECTION_STRING || !DATABASE) throw 'DB UNDEFINED'
-mongoose.connect(`${DATABASE_CONNECTION_STRING}/${DATABASE}`, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
-  .then(() => {
-    console.log(`Connected to db @ ${DATABASE_CONNECTION_STRING}/${DATABASE}, listening on Port ${PORT}`)
-    app.listen(PORT)
-  })
-  .catch(err => {
-    console.log('Mongoose error: ', err.message)
-  })
+// if (!DATABASE_CONNECTION_STRING || !DATABASE) throw 'DB UNDEFINED'
+// mongoose.connect(`${DATABASE_CONNECTION_STRING}/${DATABASE}`, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+//   .then(() => {
+//     console.log(`Connected to db @ ${DATABASE_CONNECTION_STRING}/${DATABASE}, listening on Port ${PORT}`)
+//     app.listen(PORT)
+//   })
+//   .catch(err => {
+//     console.log('Mongoose error: ', err.message)
+//   })
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`)
+})
