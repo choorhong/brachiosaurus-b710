@@ -17,7 +17,7 @@ const User = sequelize.define<UserInstance>(
       type: DataTypes.STRING
     },
     name: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.STRING
     },
     status: {

@@ -6,6 +6,8 @@ import cors from './middlewares/cors'
 
 import authRoutes from './routes/auth'
 import vesselRoutes from './routes/vessel'
+import contactRoutes from './routes/contact'
+
 
 const handleError: ErrorRequestHandler = (err, req, res, next) => {
   res.status(500).json({ message: err.message, statusCode: err.statusCode })
@@ -26,6 +28,7 @@ app.use(express.urlencoded({ extended: false }))
 // Configure REST API routes
 app.use('/auth', authRoutes)
 app.use('/vessel', vesselRoutes)
+app.use('/contact', contactRoutes)
 
 // Configure Express fallback error handler
 app.use(handleError)
