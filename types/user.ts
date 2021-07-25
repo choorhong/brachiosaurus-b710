@@ -16,7 +16,7 @@ export enum STATUS {
 export interface UserAttributes {
   id: string;
   email: string;
-  name: string;
+  name?: string;
   status: STATUS;
   role: ROLES;
   firebaseUserId: string;
