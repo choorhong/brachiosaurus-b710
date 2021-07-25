@@ -1,9 +1,8 @@
 import { DataTypes } from 'sequelize'
-import { Model } from 'sequelize/types'
 import { sequelize } from './index'
-import { ContactAttributes } from '../../types/contact'
+import { ContactInstance } from '../../types/contact'
 
-const Contact = sequelize.define<Model<ContactAttributes>>(
+const Contact = sequelize.define<ContactInstance>(
   'contacts',
   {
     id: {
