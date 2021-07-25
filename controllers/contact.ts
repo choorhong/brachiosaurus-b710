@@ -23,7 +23,7 @@ export const read = async (req: Request, res: Response) => {
   const { id } = req.params
   try {
     const contact = await Contact.findByPk(id)
-    if (!contact) return res.status(404).json()
+    if (!contact) return res.status(404).send()
     return res.status(200).json(contact)
   } catch (getContactError) {
     return res.status(500).send()
