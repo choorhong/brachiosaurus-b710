@@ -4,7 +4,7 @@ import { generateUUID } from '../helpers'
 
 export const create = async (req: Request, res: Response) => {
   const { companyName, role, remarks } = req.body
-  if (!companyName || !role || !remarks) return res.status(400).json({ err: 'Missing data' })
+  if (!companyName || !role) return res.status(400).json({ err: 'Missing data' })
   const id = generateUUID()
   try {
     const contact = await Contact.create({
@@ -32,6 +32,7 @@ export const read = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   const { id, companyName, roles, remarks } = req.body
+  if (!id || !companyName || !roles) return res.status(400).json({ err: 'Missing data' })
   try {
     const contact = await Contact.update({
       companyName,
