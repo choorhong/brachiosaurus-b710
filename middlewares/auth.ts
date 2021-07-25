@@ -21,3 +21,9 @@ export const verifyToken: RequestHandler = async (req, res, next) => {
     return res.status(401).json({ err: 'INVALID_OR_EXPIRED_TOKEN' })
   }
 }
+
+export const verifyIdParam: RequestHandler = async (req, res, next) => {
+  const { id } = req.params
+  if (!id) return res.status(400).json({ err: 'Missing param' })
+  next()
+}
