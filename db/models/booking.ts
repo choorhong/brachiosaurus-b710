@@ -50,23 +50,20 @@ const Booking = sequelize.define<BookingInstance>(
   }
 )
 
-Booking.hasOne(Contact, {
-  sourceKey: 'id',
-  foreignKey: 'forwarderId',
-  onDelete: 'SET NULL'
+Contact.hasMany(Booking, {
+  foreignKey: 'forwarderId'
 })
-// Might throw error if defined in different file
-Contact.belongsTo(Booking, {
-  foreignKey: 'bookingId'
+// Might throw error if define in different file
+Booking.belongsTo(Contact, {
+  foreignKey: 'forwarderId',
+  as: 'forwarder'
 })
 
-Booking.hasOne(Vessel, {
-  sourceKey: 'id',
-  foreignKey: 'vesselId',
-  onDelete: 'SET NULL'
+Vessel.hasMany(Booking, {
+  foreignKey: 'vesselId'
 })
-Vessel.belongsTo(Booking, {
-  foreignKey: 'bookingId'
+Booking.belongsTo(Vessel, {
+  foreignKey: 'vesselId'
 })
 
 export default Booking

@@ -52,6 +52,7 @@ module.exports = {
           model: 'contacts',
           key: 'id'
         },
+        as: 'forwarder',
         onDelete: 'SET NULL'
       },
       vesselId: {
