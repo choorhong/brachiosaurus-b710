@@ -1,12 +1,12 @@
 import express, { ErrorRequestHandler } from 'express'
 import dotenv from 'dotenv'
-import mongoose from 'mongoose'
 
 import cors from './middlewares/cors'
 
 import authRoutes from './routes/auth'
 import contactRoutes from './routes/contact'
 import vesselRoutes from './routes/vessel'
+import bookingRoutes from './routes/booking'
 
 const handleError: ErrorRequestHandler = (err, req, res, next) => {
   res.status(500).json({ message: err.message, statusCode: err.statusCode })
@@ -28,6 +28,7 @@ app.use(express.urlencoded({ extended: false }))
 app.use('/auth', authRoutes)
 app.use('/contact', contactRoutes)
 app.use('/vessel', vesselRoutes)
+app.use('/booking', bookingRoutes)
 
 // Configure Express fallback error handler
 app.use(handleError)
