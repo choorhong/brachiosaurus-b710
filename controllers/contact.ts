@@ -15,7 +15,7 @@ export const create = async (req: Request, res: Response) => {
     })
     return res.status(201).json(contact)
   } catch (createContactErr) {
-    return res.status(500).send()
+    return res.status(500).json({ err: createContactErr.toString() })
   }
 }
 
@@ -26,7 +26,7 @@ export const read = async (req: Request, res: Response) => {
     if (!contact) return res.status(404).send()
     return res.status(200).json(contact)
   } catch (getContactError) {
-    return res.status(500).send()
+    return res.status(500).json({ err: getContactError.toString() })
   }
 }
 
@@ -45,7 +45,7 @@ export const update = async (req: Request, res: Response) => {
     })
     return res.status(200).json(contact)
   } catch (updateError) {
-    return res.status(500).send()
+    return res.status(500).json({ err: updateError.toString() })
   }
 }
 
@@ -55,8 +55,8 @@ export const remove = async (req: Request, res: Response) => {
     await Contact.destroy({
       where: { id }
     })
-    return res.status(200).send()
+    return res.status(200).send('ok')
   } catch (error) {
-    return res.status(500).send()
+    return res.status(500).json({ err: error.toString() })
   }
 }

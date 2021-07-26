@@ -16,7 +16,7 @@ export const create = async (req: Request, res: Response) => {
     })
     return res.status(201).json(vessel)
   } catch (createError) {
-    return res.status(500).send()
+    return res.status(500).json({ err: createError.toString() })
   }
 }
 
@@ -27,7 +27,7 @@ export const read = async (req: Request, res: Response) => {
     if (!vessel) return res.status(404).send()
     return res.status(200).json(vessel)
   } catch (findError) {
-    return res.status(500).send()
+    return res.status(500).json({ err: findError.toString() })
   }
 }
 
@@ -45,7 +45,7 @@ export const update = async (req: Request, res: Response) => {
     })
     return res.status(200).json(vessel)
   } catch (updateError) {
-    return res.status(500).send()
+    return res.status(500).json({ err: updateError.toString() })
   }
 }
 
@@ -55,8 +55,8 @@ export const remove = async (req: Request, res: Response) => {
     await Vessel.destroy({
       where: { id }
     })
-    return res.status(200).send()
+    return res.status(200).send('ok')
   } catch (deleteError) {
-    return res.status(500).send()
+    return res.status(500).json({ err: deleteError.toString() })
   }
 }
