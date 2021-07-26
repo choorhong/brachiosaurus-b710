@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 const { DataTypes } = require('sequelize')
 
 module.exports = {
@@ -19,4 +19,4 @@ module.exports = {
       })
     ])
   }
-};
+}

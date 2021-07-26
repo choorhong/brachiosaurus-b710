@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 const { DataTypes } = require('sequelize')
 
 module.exports = {
@@ -35,16 +35,16 @@ module.exports = {
       },
       createdAt: {
         allowNull: false,
-        type: DataTypes.DATE,
+        type: DataTypes.DATE
       },
       updatedAt: {
         allowNull: false,
-        type: DataTypes.DATE,
+        type: DataTypes.DATE
       }
-    });
+    })
   },
 
   down: async (queryInterface, Sequelize) => {
     return queryInterface.dropTable('users')
   }
-};
+}
