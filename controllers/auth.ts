@@ -25,7 +25,6 @@ export const createOrFindUser: RequestHandler = async (req, res, next) => {
     // User exists > next (Eg: when user refreshes the page)
     res.status(200).json(user)
     next()
-    // return res.status(400).json({ err: 'USER_EXISTED' })
   } catch (err) {
     console.log('err', err)
     return res.status(401).json({ err: 'INVALID_OR_EXPIRED_TOKEN' })

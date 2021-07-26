@@ -8,13 +8,15 @@ import contactRoutes from './routes/contact'
 import vesselRoutes from './routes/vessel'
 import bookingRoutes from './routes/booking'
 
+import { sequelize } from './db/models'
+
 const handleError: ErrorRequestHandler = (err, req, res, next) => {
   res.status(500).json({ message: err.message, statusCode: err.statusCode })
 }
 
 // Initialize environmental variables
 dotenv.config()
-const { DATABASE_CONNECTION_STRING, DATABASE, PORT } = process.env
+const { PORT } = process.env
 
 // Initialize app
 const app = express()
@@ -32,20 +34,14 @@ app.use('/booking', bookingRoutes)
 
 // Configure Express fallback error handler
 app.use(handleError)
-// app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-//     res.status(500).json({ message: error.message })
-// })
 
 // Set up database & server
-// if (!DATABASE_CONNECTION_STRING || !DATABASE) throw 'DB UNDEFINED'
-// mongoose.connect(`${DATABASE_CONNECTION_STRING}/${DATABASE}`, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
-//   .then(() => {
-//     console.log(`Connected to db @ ${DATABASE_CONNECTION_STRING}/${DATABASE}, listening on Port ${PORT}`)
-//     app.listen(PORT)
-//   })
-//   .catch(err => {
-//     console.log('Mongoose error: ', err.message)
-//   })
-app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`)
-})
+sequelize.authenticate().then(
+  () => {
+    app.listen(PORT, () => {
+      console.log(`Listening on port ${PORT}`)
+    })
+  })
+  .catch(err => {
+    console.log('Connection error: ', err.message)
+  })
