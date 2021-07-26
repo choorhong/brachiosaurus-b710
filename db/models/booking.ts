@@ -12,35 +12,44 @@ const Booking = sequelize.define<BookingInstance>(
       autoIncrement: false,
       primaryKey: true,
       type: DataTypes.UUID,
-      unique: true
+      unique: true,
+      defaultValue: DataTypes.UUIDV4
     },
     bookingId: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    departureETD: {
-      type: DataTypes.DATE,
-      allowNull: true
+    departure: {
+      type: DataTypes.JSONB,
+      allowNull: false
     },
-    departureLocation: {
-      type: DataTypes.STRING,
-      allowNull: true
+    arrival: {
+      type: DataTypes.JSONB,
+      allowNull: false
     },
-    arrivalETA: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
-    arrivalLocation: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
+    // departureETD: {
+    //   type: DataTypes.DATE,
+    //   allowNull: true
+    // },
+    // departureLocation: {
+    //   type: DataTypes.STRING,
+    //   allowNull: true
+    // },
+    // arrivalETA: {
+    //   type: DataTypes.DATE,
+    //   allowNull: true
+    // },
+    // arrivalLocation: {
+    //   type: DataTypes.STRING,
+    //   allowNull: true
+    // },
     users: {
       type: DataTypes.ARRAY(DataTypes.STRING),
-      allowNull: false,
+      allowNull: true,
       defaultValue: []
     },
     slots: {
-      type: DataTypes.STRING,
+      type: DataTypes.NUMBER,
       allowNull: true
     },
     remarks: {
@@ -50,6 +59,8 @@ const Booking = sequelize.define<BookingInstance>(
   }
 )
 
+// 1 contact (forwarder) can own or has many booking
+// 1 booking can only belong to 1 contact (forwarder)
 Contact.hasMany(Booking, {
   foreignKey: 'forwarderId'
 })
@@ -59,6 +70,8 @@ Booking.belongsTo(Contact, {
   as: 'forwarder'
 })
 
+// 1 vessel can own or has many booking
+// 1 booking can only belong to 1 vessel
 Vessel.hasMany(Booking, {
   foreignKey: 'vesselId'
 })

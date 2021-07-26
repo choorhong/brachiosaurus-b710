@@ -45,7 +45,6 @@ module.exports = {
         allowNull: true
       },
       forwarderId: {
-        primaryKey: true,
         type: DataTypes.UUID,
         allowNull: true,
         references: {
@@ -56,7 +55,6 @@ module.exports = {
         onDelete: 'SET NULL'
       },
       vesselId: {
-        primaryKey: true,
         type: DataTypes.UUID,
         allowNull: true,
         references: {
