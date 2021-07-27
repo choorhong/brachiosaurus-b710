@@ -1,17 +1,21 @@
 import { Router } from 'express'
-import { create, read, update, remove } from '../controllers/vessel'
-import { verifyToken, verifyIdParam } from '../middlewares/auth'
+import AuthMiddlewareController from '../middlewares/auth'
+import QueryParamsMiddlewareController from '../middlewares/query-params'
+import VesselController from '../controllers/vessel'
 
 const router = Router()
+const auth = new AuthMiddlewareController()
+const queryParams = new QueryParamsMiddlewareController()
+const vessel = new VesselController()
 
-router.use(verifyToken)
+router.use(auth.verifyToken)
 
-router.post('/create', create)
+router.post('/create', vessel.create)
 
-router.get('/:id', verifyIdParam, read)
+router.get('/:id', queryParams.verifyIdParam, vessel.read)
 
-router.post('/update', update)
+router.post('/update', vessel.update)
 
-router.delete('/:id', verifyIdParam, remove)
+router.delete('/:id', queryParams.verifyIdParam, vessel.remove)
 
 export default router
