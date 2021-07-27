@@ -1,13 +1,12 @@
 import express, { ErrorRequestHandler } from 'express'
 import dotenv from 'dotenv'
 
-import cors from './middlewares/cors'
+import cors from 'cors'
 
 import authRoutes from './routes/auth'
 import contactRoutes from './routes/contact'
 import vesselRoutes from './routes/vessel'
 import bookingRoutes from './routes/booking'
-
 import { sequelize } from './db/models'
 
 const handleError: ErrorRequestHandler = (err, req, res, next) => {
@@ -22,7 +21,9 @@ const { PORT } = process.env
 const app = express()
 
 // Configure app
-app.use(cors)
+app.use(cors({
+  allowedHeaders: ['Content-Type', 'Authorization']
+}))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
