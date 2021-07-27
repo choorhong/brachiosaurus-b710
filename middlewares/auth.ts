@@ -1,29 +1,27 @@
 import { RequestHandler } from 'express'
+import { BaseController } from '../controllers/base'
 import admin from '../firebase'
+import { ErrorMessage } from '../types/error'
 
-export const verifyToken: RequestHandler = async (req, res, next) => {
-  try {
-    const accessToken = req.headers.authorization
-    if (!accessToken) throw new Error()
+export default class AuthMiddlewareController extends BaseController {
+  public verifyToken: RequestHandler = async (req, res, next) => {
+    try {
+      const accessToken = req.headers.authorization
+      if (!accessToken) return this.unauthorized(res, ErrorMessage.MISSING_TOKEN)
 
-    const firebaseUser = await admin.auth().verifyIdToken(accessToken)
-    if (!firebaseUser) throw new Error()
+      const firebaseUser = await admin.auth().verifyIdToken(accessToken)
+      if (!firebaseUser) return this.unauthorized(res, ErrorMessage.USER_ACCOUNT_NOT_FOUND)
 
-    res.locals.firebaseUser = {
-      email: firebaseUser.email,
-      name: firebaseUser.name,
-      firebaseUserId: firebaseUser.user_id
+      res.locals.firebaseUser = {
+        email: firebaseUser.email,
+        name: firebaseUser.name,
+        firebaseUserId: firebaseUser.user_id
+      }
+
+      next()
+    } catch (err) {
+      console.log('err', err)
+      return this.unauthorized(res, ErrorMessage.INVALID_OR_EXPIRED_TOKEN)
     }
-
-    next()
-  } catch (err) {
-    console.log('err', err)
-    return res.status(401).json({ err: 'INVALID_OR_EXPIRED_TOKEN' })
   }
-}
-
-export const verifyIdParam: RequestHandler = async (req, res, next) => {
-  const { id } = req.params
-  if (!id) return res.status(400).json({ err: 'Missing param' })
-  next()
 }
