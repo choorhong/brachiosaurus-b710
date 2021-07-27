@@ -10,7 +10,8 @@ const User = sequelize.define<UserInstance>(
       autoIncrement: false,
       primaryKey: true,
       type: DataTypes.UUID,
-      unique: true
+      unique: true,
+      defaultValue: DataTypes.UUIDV4
     },
     email: {
       allowNull: false,

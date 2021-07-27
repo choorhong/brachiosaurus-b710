@@ -49,7 +49,7 @@ const Booking = sequelize.define<BookingInstance>(
       defaultValue: []
     },
     slots: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.INTEGER,
       allowNull: true
     },
     remarks: {

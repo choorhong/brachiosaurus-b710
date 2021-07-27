@@ -10,7 +10,8 @@ const Contact = sequelize.define<ContactInstance>(
       autoIncrement: false,
       primaryKey: true,
       type: DataTypes.UUID,
-      unique: true
+      unique: true,
+      defaultValue: DataTypes.UUIDV4
     },
     companyName: {
       allowNull: false,
