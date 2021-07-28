@@ -9,7 +9,7 @@ export enum ContactRoles {
 }
 
 export interface ContactAttributes {
-  id: string;
+  id?: string;
   companyName: string;
   roles: ContactRoles[];
   remarks: string;

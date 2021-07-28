@@ -9,7 +9,7 @@ interface DateLocation {
 }
 
 export interface BookingAttributes {
-  id: string;
+  id?: string;
   bookingId: string;
   forwarderId?: string;
   forwarder?: ContactInstance;
