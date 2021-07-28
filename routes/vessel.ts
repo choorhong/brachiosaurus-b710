@@ -1,4 +1,5 @@
 import { Router } from 'express'
+
 import AuthMiddlewareController from '../middlewares/auth'
 import QueryParamsMiddlewareController from '../middlewares/query-params'
 import VesselController from '../controllers/vessel'
