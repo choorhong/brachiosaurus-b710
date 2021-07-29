@@ -11,7 +11,7 @@ module.exports = {
         type: DataTypes.UUID,
         unique: true
       },
-      companyName: {
+      name: {
         allowNull: false,
         type: DataTypes.STRING
       },

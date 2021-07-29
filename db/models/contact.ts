@@ -13,7 +13,7 @@ const Contact = sequelize.define<ContactInstance>(
       unique: true,
       defaultValue: DataTypes.UUIDV4
     },
-    companyName: {
+    name: {
       allowNull: false,
       type: DataTypes.STRING
     },
