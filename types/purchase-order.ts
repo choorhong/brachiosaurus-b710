@@ -8,11 +8,12 @@ export enum STATUS {
   }
 
 export interface PurchaseOrderAttributes {
-  id: string;
+  id?: string;
   purchaseOrderId: string;
   status: STATUS;
   users?: string[];
   remarks: string;
+  vendorId?: string;
 }
 
 export interface PurchaseOrderInstance
