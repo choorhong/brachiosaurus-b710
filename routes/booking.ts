@@ -19,4 +19,6 @@ router.post('/update', booking.update)
 
 router.delete('/:id', queryParams.verifyIdParam, booking.remove)
 
+router.get('/', booking.getAll)
+
 export default router
