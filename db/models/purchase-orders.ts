@@ -44,6 +44,10 @@ Contact.hasMany(PurchaseOrder, {
   as: 'vendor'
 })
 
-PurchaseOrder.belongsTo(Contact)
+PurchaseOrder.belongsTo(Contact, {
+  foreignKey: 'vendorId', // if this is not included, the schema will try to return `contactId` which does not exist in purchase order.
+  as: 'vendor' // this is needed because of " as: 'vendor' " in PurchaseOrder.findAll({ include: [{ model: Contact, as: 'vendor' }]})
+  // else the returned data would be populated as "contact: {....}"
+})
 
 export default PurchaseOrder
