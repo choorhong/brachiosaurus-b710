@@ -1,62 +1,80 @@
-import { Request, Response } from 'express'
+import { RequestHandler } from 'express'
 import Contact from '../db/models/contact'
-import { generateUUID } from '../helpers'
+import { ErrorMessage } from '../types/error'
+import { isEmpty } from '../utils/helpers'
+import { BaseController } from './base'
 
-export const create = async (req: Request, res: Response) => {
-  const { companyName, role, remarks } = req.body
-  if (!companyName || !role) return res.status(400).json({ err: 'Missing data' })
-  const id = generateUUID()
-  try {
-    const contact = await Contact.create({
-      id,
-      companyName,
-      roles: [role], // just one role on create?
-      remarks
-    })
-    return res.status(201).json(contact)
-  } catch (createContactErr) {
-    return res.status(500).json({ err: createContactErr.toString() })
-  }
-}
+export default class ContactController extends BaseController {
+  public create: RequestHandler = async (req, res) => {
+    const { name, role, remarks } = req.body
+    const bodyArr = [name, role]
+    if (isEmpty(bodyArr)) return this.clientError(res, ErrorMessage.MISSING_DATA)
 
-export const read = async (req: Request, res: Response) => {
-  const { id } = req.params
-  try {
-    const contact = await Contact.findByPk(id)
-    if (!contact) return res.status(404).send()
-    return res.status(200).json(contact)
-  } catch (getContactError) {
-    return res.status(500).json({ err: getContactError.toString() })
+    try {
+      const contact = await Contact.create({
+        name,
+        roles: [role],
+        remarks
+      })
+      return this.created(res, contact)
+    } catch (createError) {
+      return this.fail(res, createError)
+    }
   }
-}
 
-export const update = async (req: Request, res: Response) => {
-  const { id, companyName, roles, remarks } = req.body
-  if (!id || !companyName || !roles) return res.status(400).json({ err: 'Missing data' })
-  try {
-    const contact = await Contact.update({
-      companyName,
-      roles,
-      remarks
-    }, {
-      where: {
-        id
-      }
-    })
-    return res.status(200).json(contact)
-  } catch (updateError) {
-    return res.status(500).json({ err: updateError.toString() })
-  }
-}
+  public read: RequestHandler = async (req, res) => {
+    const { id } = req.params
 
-export const remove = async (req: Request, res: Response) => {
-  const { id } = req.params
-  try {
-    await Contact.destroy({
-      where: { id }
-    })
-    return res.status(200).send('ok')
-  } catch (error) {
-    return res.status(500).json({ err: error.toString() })
+    try {
+      const contact = await Contact.findByPk(id)
+      if (!contact) return this.notFound(res)
+      return this.ok(res, contact)
+    } catch (readError) {
+      return this.fail(res, readError)
+    }
   }
+
+  public update: RequestHandler = async (req, res) => {
+    const { id, name, role, remarks } = req.body
+    const bodyArr = [id, name, role]
+    if (isEmpty(bodyArr)) return this.clientError(res, ErrorMessage.MISSING_DATA)
+
+    try {
+      const [numOfUpdatedContacts, updatedContacts] = await Contact.update({
+        name,
+        roles: [role],
+        remarks
+      }, {
+        where: {
+          id
+        }
+      })
+      return this.ok(res, updatedContacts)
+    } catch (updateError) {
+      return this.fail(res, updateError)
+    }
+  }
+
+ public remove: RequestHandler = async (req, res) => {
+   const { id } = req.params
+
+   try {
+     await Contact.destroy({
+       where: { id }
+     })
+     return this.ok(res)
+   } catch (removeError) {
+     return this.fail(res, removeError)
+   }
+ }
+
+ public getAll: RequestHandler = async (req, res) => {
+   try {
+     const contacts = await Contact.findAll()
+     if (!contacts) return this.notFound(res)
+     return this.ok(res, contacts)
+   } catch (error) {
+     return this.fail(res, error)
+   }
+ }
 }

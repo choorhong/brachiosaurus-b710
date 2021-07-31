@@ -1,23 +1,25 @@
 import { RequestHandler } from 'express'
-import Vessel from '../db/models/vessel'
+import Contact from '../db/models/contact'
+import PurchaseOrder from '../db/models/purchase-orders'
 import { ErrorMessage } from '../types/error'
 import { isEmpty } from '../utils/helpers'
 import { BaseController } from './base'
 
-export default class VesselController extends BaseController {
+export default class PurchaseOrderController extends BaseController {
   public create: RequestHandler = async (req, res) => {
-    const { name, earliestReturningDate, cutOff, remarks } = req.body
-    const bodyArr = [name, earliestReturningDate, cutOff]
+    const { purchaseOrderId, users, status, vendorId, remarks } = req.body
+    const bodyArr = [purchaseOrderId, vendorId]
     if (isEmpty(bodyArr)) return this.clientError(res, ErrorMessage.MISSING_DATA)
 
     try {
-      const vessel = await Vessel.create({
-        name,
-        earliestReturningDate,
-        cutOff,
+      const purchaseOrder = await PurchaseOrder.create({
+        purchaseOrderId,
+        users,
+        status,
+        vendorId,
         remarks
       })
-      return this.created(res, vessel)
+      return this.created(res, purchaseOrder)
     } catch (createError) {
       return this.fail(res, createError)
     }
@@ -27,10 +29,9 @@ export default class VesselController extends BaseController {
     const { id } = req.params
 
     try {
-      const vessel = await Vessel.findByPk(id)
+      const vessel = await PurchaseOrder.findByPk(id)
       if (!vessel) return this.notFound(res)
       return this.ok(res, vessel)
-      // return res.status(200).json(vessel)
     } catch (readError) {
       return this.fail(res, readError)
     }
@@ -42,10 +43,7 @@ export default class VesselController extends BaseController {
     if (isEmpty(bodyArr)) return this.clientError(res, ErrorMessage.MISSING_DATA)
 
     try {
-      const [numOfUpdatedVessels, updatedVessels] = await Vessel.update({
-        name,
-        earliestReturningDate,
-        cutOff,
+      const [numOfUpdatedVessels, updatedVessels] = await PurchaseOrder.update({
         remarks
       }, {
         where: { id },
@@ -61,7 +59,7 @@ export default class VesselController extends BaseController {
     const { id } = req.params
 
     try {
-      await Vessel.destroy({
+      await PurchaseOrder.destroy({
         where: { id }
       })
       return this.ok(res)
@@ -72,7 +70,11 @@ export default class VesselController extends BaseController {
 
   public getAll: RequestHandler = async (req, res) => {
     try {
-      const vessels = await Vessel.findAll()
+      const vessels = await PurchaseOrder.findAll({
+        include: [
+          { model: Contact, as: 'vendor' }
+        ]
+      })
       if (!vessels) return this.notFound(res)
       return this.ok(res, vessels)
     } catch (error) {
