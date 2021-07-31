@@ -14,14 +14,14 @@ export enum ShipmentStatus {
 }
 
 export interface ShipmentAttributes {
-  id: string;
+  id?: string;
   purchaseOrderId?: string;
   purchaseOrder?: PurchaseOrderInstance;
   vendorId?: string;
   vendor?: ContactInstance;
   bookingId?: string;
   booking?: BookingInstance;
-  status: ShipmentStatus;
+  status?: ShipmentStatus;
   users: string[];
   remarks?: string;
   container?: string;
