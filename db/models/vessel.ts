@@ -28,6 +28,10 @@ const Vessel = sequelize.define<VesselInstance>(
     remarks: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    vector: {
+      type: 'TSVECTOR',
+      allowNull: true
     }
   }
 )

@@ -13,6 +13,9 @@ router.use(auth.verifyToken)
 
 router.post('/create', vessel.create)
 
+// use as /search/?name=example
+router.get('/search', vessel.search)
+
 router.get('/:id', queryParams.verifyIdParam, vessel.read)
 
 router.post('/update', vessel.update)
