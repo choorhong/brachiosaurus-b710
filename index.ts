@@ -8,6 +8,7 @@ import contactRoutes from './routes/contact'
 import vesselRoutes from './routes/vessel'
 import bookingRoutes from './routes/booking'
 import purchaseOrderRoutes from './routes/purchase-order'
+import shipmentRoutes from './routes/shipment'
 // import purchaseOrderRoutes from './routes/shipment'
 import { sequelize } from './db/models'
 
@@ -35,7 +36,7 @@ app.use('/contact', contactRoutes)
 app.use('/vessel', vesselRoutes)
 app.use('/booking', bookingRoutes)
 app.use('/purchase-order', purchaseOrderRoutes)
-// app.use('/shipment', shipmentRoutes)
+app.use('/shipment', shipmentRoutes)
 
 // Configure Express fallback error handler
 app.use(handleError)
