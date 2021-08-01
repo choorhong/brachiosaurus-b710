@@ -13,6 +13,9 @@ router.use(auth.verifyToken)
 
 router.post('/create', purchaseOrder.create)
 
+// use as /search/?purchaseOrderId=example
+router.get('/search', purchaseOrder.search)
+
 router.get('/:id', queryParams.verifyIdParam, purchaseOrder.read)
 
 router.post('/update', purchaseOrder.update)

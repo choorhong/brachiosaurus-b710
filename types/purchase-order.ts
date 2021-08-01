@@ -14,6 +14,7 @@ export interface PurchaseOrderAttributes {
   users?: string[];
   remarks: string;
   vendorId?: string;
+  vector?: string;
 }
 
 export interface PurchaseOrderInstance
