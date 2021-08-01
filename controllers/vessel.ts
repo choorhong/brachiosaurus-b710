@@ -85,7 +85,7 @@ export default class VesselController extends BaseController {
     if (!name) return this.fail(res, ErrorMessage.MISSING_DATA)
     const term = name.toString()
     // some length check
-    if (term.length < 3) return this.ok(res)
+    if (term.length < 3) return this.fail(res, ErrorMessage.SHORT_LENGTH)
     try {
       const vessel = await Vessel.sequelize?.query('SELECT * FROM vessels WHERE vector @@ to_tsquery(:query);', {
         replacements: { query: `${term.replace(' ', '+')}:*` },

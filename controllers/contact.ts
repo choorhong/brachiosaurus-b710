@@ -82,7 +82,7 @@ export default class ContactController extends BaseController {
     const { name } = req.query
     if (!name) return this.fail(res, ErrorMessage.MISSING_DATA)
     const term = name.toString()
-    if (term.length < 3) return this.ok(res)
+    if (term.length < 3) return this.fail(res, ErrorMessage.SHORT_LENGTH)
     try {
       const contact = await Contact.sequelize?.query('SELECT * FROM contacts WHERE vector @@ to_tsquery(:query);', {
         replacements: { query: `${term.replace(' ', '+')}:*` },

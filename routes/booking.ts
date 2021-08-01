@@ -13,6 +13,9 @@ router.use(auth.verifyToken)
 
 router.post('/create', booking.create)
 
+// use as /search/?name=example
+router.get('/search', booking.search)
+
 router.get('/:id', queryParams.verifyIdParam, booking.read)
 
 router.post('/update', booking.update)
