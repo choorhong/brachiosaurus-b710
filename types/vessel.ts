@@ -7,6 +7,7 @@ export interface VesselAttributes {
   earliestReturningDate: Date;
   cutOff: Date;
   remarks: string;
+  vector?: string;
 }
 
 export interface VesselInstance

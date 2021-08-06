@@ -27,7 +27,6 @@ export default class BookingController extends BaseController {
         slots,
         remarks
       })
-      console.log('booking', booking)
       return this.created(res, booking)
     } catch (createError) {
       return this.fail(res, createError)
@@ -94,6 +93,23 @@ export default class BookingController extends BaseController {
       const bookings = await Booking.findAll({ include: [{ model: Contact, as: 'forwarder' }, { model: Vessel }] })
       if (!bookings) return this.notFound(res)
       return this.ok(res, bookings)
+    } catch (error) {
+      return this.fail(res, error)
+    }
+  }
+
+  public search: RequestHandler = async (req, res) => {
+    const { bookingId } = req.query
+    if (!bookingId) return this.fail(res, ErrorMessage.MISSING_DATA)
+    const term = bookingId.toString()
+    // some length check
+    if (term.length < 3) return this.fail(res, ErrorMessage.SHORT_LENGTH)
+    try {
+      const booking = await Booking.sequelize?.query('SELECT * FROM bookings WHERE vector @@ to_tsquery(:query);', {
+        replacements: { query: `${term.replace(' ', '+')}:*` },
+        type: 'SELECT'
+      })
+      return this.ok(res, booking)
     } catch (error) {
       return this.fail(res, error)
     }

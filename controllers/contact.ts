@@ -55,26 +55,42 @@ export default class ContactController extends BaseController {
     }
   }
 
- public remove: RequestHandler = async (req, res) => {
-   const { id } = req.params
+  public remove: RequestHandler = async (req, res) => {
+    const { id } = req.params
 
-   try {
-     await Contact.destroy({
-       where: { id }
-     })
-     return this.ok(res)
-   } catch (removeError) {
-     return this.fail(res, removeError)
-   }
- }
+    try {
+      await Contact.destroy({
+        where: { id }
+      })
+      return this.ok(res)
+    } catch (removeError) {
+      return this.fail(res, removeError)
+    }
+  }
 
- public getAll: RequestHandler = async (req, res) => {
-   try {
-     const contacts = await Contact.findAll()
-     if (!contacts) return this.notFound(res)
-     return this.ok(res, contacts)
-   } catch (error) {
-     return this.fail(res, error)
-   }
- }
+  public getAll: RequestHandler = async (req, res) => {
+    try {
+      const contacts = await Contact.findAll()
+      if (!contacts) return this.notFound(res)
+      return this.ok(res, contacts)
+    } catch (error) {
+      return this.fail(res, error)
+    }
+  }
+
+  public search: RequestHandler = async (req, res) => {
+    const { name } = req.query
+    if (!name) return this.fail(res, ErrorMessage.MISSING_DATA)
+    const term = name.toString()
+    if (term.length < 3) return this.fail(res, ErrorMessage.SHORT_LENGTH)
+    try {
+      const contact = await Contact.sequelize?.query('SELECT * FROM contacts WHERE vector @@ to_tsquery(:query);', {
+        replacements: { query: `${term.replace(' ', '+')}:*` },
+        type: 'SELECT'
+      })
+      return this.ok(res, contact)
+    } catch (error) {
+      return this.fail(res, error)
+    }
+  }
 }

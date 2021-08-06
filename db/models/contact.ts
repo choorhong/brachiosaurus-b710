@@ -24,6 +24,10 @@ const Contact = sequelize.define<ContactInstance>(
     remarks: {
       allowNull: true,
       type: DataTypes.STRING
+    },
+    vector: {
+      type: 'TSVECTOR',
+      allowNull: true
     }
   }
 )

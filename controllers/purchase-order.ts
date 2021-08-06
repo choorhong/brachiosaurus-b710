@@ -81,4 +81,21 @@ export default class PurchaseOrderController extends BaseController {
       return this.fail(res, error)
     }
   }
+
+  public search: RequestHandler = async (req, res) => {
+    const { purchaseOrderId } = req.query
+    if (!purchaseOrderId) return this.fail(res, ErrorMessage.MISSING_DATA)
+    const term = purchaseOrderId.toString()
+    // some length check
+    if (term.length < 3) return this.fail(res, ErrorMessage.SHORT_LENGTH)
+    try {
+      const vessel = await PurchaseOrder.sequelize?.query('SELECT * FROM "purchaseOrders" WHERE vector @@ to_tsquery(:query);', {
+        replacements: { query: `${term.replace(' ', '+')}:*` },
+        type: 'SELECT'
+      })
+      return this.ok(res, vessel)
+    } catch (error) {
+      return this.fail(res, error)
+    }
+  }
 }

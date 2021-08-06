@@ -13,6 +13,7 @@ export interface ContactAttributes {
   name: string;
   roles: ContactRoles[];
   remarks: string;
+  vector?: string;
 }
 
 export interface ContactInstance

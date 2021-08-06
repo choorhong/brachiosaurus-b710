@@ -13,6 +13,9 @@ router.use(auth.verifyToken)
 
 router.post('/create', contact.create)
 
+// use as /search/?name=example
+router.get('/search', contact.search)
+
 router.get('/:id', queryParams.verifyIdParam, contact.read)
 
 router.post('/update', contact.update)

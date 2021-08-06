@@ -24,6 +24,7 @@ export interface BookingAttributes {
   users?: string[];
   slots: number;
   remarks: string;
+  vector?: string;
 }
 
 export interface BookingInstance
