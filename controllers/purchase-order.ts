@@ -4,6 +4,7 @@ import PurchaseOrder from '../db/models/purchase-orders'
 import { ErrorMessage } from '../types/error'
 import { isEmpty } from '../utils/helpers'
 import { BaseController } from './base'
+import { Op } from 'sequelize'
 
 export default class PurchaseOrderController extends BaseController {
   public create: RequestHandler = async (req, res) => {
@@ -29,9 +30,9 @@ export default class PurchaseOrderController extends BaseController {
     const { id } = req.params
 
     try {
-      const vessel = await PurchaseOrder.findByPk(id)
-      if (!vessel) return this.notFound(res)
-      return this.ok(res, vessel)
+      const purchaseOrder = await PurchaseOrder.findByPk(id)
+      if (!purchaseOrder) return this.notFound(res)
+      return this.ok(res, purchaseOrder)
     } catch (readError) {
       return this.fail(res, readError)
     }
@@ -43,13 +44,13 @@ export default class PurchaseOrderController extends BaseController {
     if (isEmpty(bodyArr)) return this.clientError(res, ErrorMessage.MISSING_DATA)
 
     try {
-      const [numOfUpdatedVessels, updatedVessels] = await PurchaseOrder.update({
+      const [numOfUpdatedPurchaseOrders, updatedPurchaseOrders] = await PurchaseOrder.update({
         remarks
       }, {
         where: { id },
         returning: true
       })
-      return this.ok(res, updatedVessels)
+      return this.ok(res, updatedPurchaseOrders)
     } catch (updateError) {
       return this.fail(res, updateError)
     }
@@ -70,13 +71,32 @@ export default class PurchaseOrderController extends BaseController {
 
   public getAll: RequestHandler = async (req, res) => {
     try {
-      const vessels = await PurchaseOrder.findAll({
+      const purchaseOrders = await PurchaseOrder.findAll({
         include: [
           { model: Contact, as: 'vendor' }
         ]
       })
-      if (!vessels) return this.notFound(res)
-      return this.ok(res, vessels)
+      if (!purchaseOrders) return this.notFound(res)
+      return this.ok(res, purchaseOrders)
+    } catch (error) {
+      return this.fail(res, error)
+    }
+  }
+
+  public inputSearch: RequestHandler = async (req, res) => {
+    const { query } = req.body
+
+    try {
+      const purchaseOrders = await PurchaseOrder.findAll({
+        limit: 5,
+        where: {
+          purchaseOrderId: {
+            [Op.iLike]: `%${query}%`
+          }
+        }
+      })
+      if (!purchaseOrders) return this.notFound(res)
+      return this.ok(res, purchaseOrders)
     } catch (error) {
       return this.fail(res, error)
     }
@@ -89,11 +109,11 @@ export default class PurchaseOrderController extends BaseController {
     // some length check
     if (term.length < 3) return this.fail(res, ErrorMessage.SHORT_LENGTH)
     try {
-      const vessel = await PurchaseOrder.sequelize?.query('SELECT * FROM "purchaseOrders" WHERE vector @@ to_tsquery(:query);', {
+      const purchaseOrder = await PurchaseOrder.sequelize?.query('SELECT * FROM "purchaseOrders" WHERE vector @@ to_tsquery(:query);', {
         replacements: { query: `${term.replace(' ', '+')}:*` },
         type: 'SELECT'
       })
-      return this.ok(res, vessel)
+      return this.ok(res, purchaseOrder)
     } catch (error) {
       return this.fail(res, error)
     }

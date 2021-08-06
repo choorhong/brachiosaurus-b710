@@ -16,6 +16,8 @@ router.post('/create', purchaseOrder.create)
 // use as /search/?purchaseOrderId=example
 router.get('/search', purchaseOrder.search)
 
+router.post('/input-search', purchaseOrder.inputSearch)
+
 router.get('/:id', queryParams.verifyIdParam, purchaseOrder.read)
 
 router.post('/update', purchaseOrder.update)
