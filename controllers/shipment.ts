@@ -3,6 +3,7 @@ import Booking from '../db/models/booking'
 import Contact from '../db/models/contact'
 import PurchaseOrder from '../db/models/purchase-orders'
 import Shipment from '../db/models/shipment'
+import Vessel from '../db/models/vessel'
 import { ErrorMessage } from '../types/error'
 import { ShipmentStatus } from '../types/shipment'
 import { isEmpty } from '../utils/helpers'
@@ -40,7 +41,17 @@ export default class ShipmentController extends BaseController {
     if (!id) return this.fail(res, ErrorMessage.MISSING_DATA)
 
     try {
-      const shipment = await Shipment.findByPk(id, { include: [{ model: PurchaseOrder }, { model: Contact, as: 'vendor' }, { model: Booking }] })
+      const shipment = await Shipment.findByPk(id, {
+        include: [
+          { model: PurchaseOrder },
+          { model: Contact, as: 'vendor' },
+          {
+            model: Booking,
+            include: [{
+              model: Vessel
+            }]
+          }]
+      })
       if (!shipment) return this.notFound(res)
       return this.ok(res, shipment)
     } catch (readError) {
@@ -97,7 +108,18 @@ export default class ShipmentController extends BaseController {
 
   public getAll: RequestHandler = async (req, res) => {
     try {
-      const shipments = await Shipment.findAll()
+      const shipments = await Shipment.findAll({
+        include: [
+          { model: PurchaseOrder },
+          { model: Contact, as: 'vendor' },
+          {
+            model: Booking,
+            include: [{
+              model: Vessel
+            }]
+          }
+        ]
+      })
       if (!shipments) return this.notFound(res)
       return this.ok(res, shipments)
     } catch (error) {
