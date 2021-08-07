@@ -1,6 +1,8 @@
 import { RequestHandler } from 'express'
+import { Op } from 'sequelize'
 import Vessel from '../db/models/vessel'
 import { ErrorMessage } from '../types/error'
+import { weekEnd, weekStart } from '../utils/date'
 import { isEmpty } from '../utils/helpers'
 import { BaseController } from './base'
 
@@ -72,7 +74,14 @@ export default class VesselController extends BaseController {
 
   public getAll: RequestHandler = async (req, res) => {
     try {
-      const vessels = await Vessel.findAll()
+      const vessels = await Vessel.findAll({
+        where: {
+          cutOff: {
+            [Op.between]: [weekStart, weekEnd]
+          } as any
+        },
+        order: [['cutOff', 'ASC']]
+      })
       if (!vessels) return this.notFound(res)
       return this.ok(res, vessels)
     } catch (error) {

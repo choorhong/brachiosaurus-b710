@@ -1,4 +1,5 @@
 import { RequestHandler } from 'express'
+import { Op } from 'sequelize'
 import Booking from '../db/models/booking'
 import Contact from '../db/models/contact'
 import PurchaseOrder from '../db/models/purchase-orders'
@@ -6,6 +7,7 @@ import Shipment from '../db/models/shipment'
 import Vessel from '../db/models/vessel'
 import { ErrorMessage } from '../types/error'
 import { ShipmentStatus } from '../types/shipment'
+import { weekStart, weekEnd } from '../utils/date'
 import { isEmpty } from '../utils/helpers'
 import { BaseController } from './base'
 
@@ -115,10 +117,18 @@ export default class ShipmentController extends BaseController {
           {
             model: Booking,
             include: [{
-              model: Vessel
-            }]
+              model: Vessel,
+              where: {
+                cutOff: {
+                  [Op.between]: [weekStart, weekEnd]
+                } as any
+              },
+              required: true
+            }],
+            required: true
           }
-        ]
+        ],
+        order: [['booking', 'vessel', 'cutOff', 'ASC']]
       })
       if (!shipments) return this.notFound(res)
       return this.ok(res, shipments)

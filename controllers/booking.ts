@@ -1,8 +1,10 @@
 import { Request, RequestHandler, Response } from 'express'
+import { Op } from 'sequelize'
 import Booking from '../db/models/booking'
 import Contact from '../db/models/contact'
 import Vessel from '../db/models/vessel'
 import { ErrorMessage } from '../types/error'
+import { weekEnd, weekStart } from '../utils/date'
 import { isEmpty } from '../utils/helpers'
 import { BaseController } from './base'
 
@@ -90,7 +92,20 @@ export default class BookingController extends BaseController {
 
   public getAll: RequestHandler = async (req, res) => {
     try {
-      const bookings = await Booking.findAll({ include: [{ model: Contact, as: 'forwarder' }, { model: Vessel }] })
+      const bookings = await Booking.findAll({
+        include: [
+          { model: Contact, as: 'forwarder' },
+          {
+            model: Vessel,
+            where: {
+              cutOff: {
+                [Op.between]: [weekStart, weekEnd]
+              } as any
+            }
+          }
+        ],
+        order: [['vessel', 'cutOff', 'ASC']]
+      })
       if (!bookings) return this.notFound(res)
       return this.ok(res, bookings)
     } catch (error) {
