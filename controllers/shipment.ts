@@ -128,9 +128,8 @@ export default class ShipmentController extends BaseController {
         end = moment(cutOffDate).add(1, 'week').endOf('isoWeek')
       }
     }
-    let shipments
     try {
-      shipments = await Shipment.findAll({
+      const shipments = await Shipment.findAll({
         include: [
           { model: PurchaseOrder },
           { model: Contact, as: 'vendor' },
@@ -150,7 +149,6 @@ export default class ShipmentController extends BaseController {
         ],
         order: [['booking', 'vessel', 'cutOff', 'ASC']]
       })
-      if (!shipments) shipments = await Shipment.findAll()
       if (!shipments) return this.notFound(res)
       return this.ok(res, shipments)
     } catch (error) {
