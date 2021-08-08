@@ -77,6 +77,7 @@ export default class VesselController extends BaseController {
    * Use like '/vessel/?cutOff=2021-08-10T07:28:04.204Z&next=true' or '/vessel/?cutOff=2021-08-10T07:28:04.204Z&previous=true'
    * if next is true it will get next week's date from cutOff, if previous is true it will get last week's date from cutOff
    * For example: cutOff = '2021-08-10T07:28:04.204Z' and next = true, it will query from 2021-08-16 to 2021-08-22
+   * Default '/vessel/' will query cutOff date within this week
    */
   public getAll: RequestHandler = async (req, res) => {
     const { cutOff, previous, next } = req.query
