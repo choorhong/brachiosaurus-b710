@@ -30,7 +30,13 @@ export default class PurchaseOrderController extends BaseController {
     const { id } = req.params
 
     try {
-      const purchaseOrder = await PurchaseOrder.findByPk(id)
+      const purchaseOrder = await PurchaseOrder.findByPk(id,
+        {
+          include: [
+            { model: Contact, as: 'vendor' }
+          ]
+        }
+      )
       if (!purchaseOrder) return this.notFound(res)
       return this.ok(res, purchaseOrder)
     } catch (readError) {
