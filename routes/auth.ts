@@ -9,4 +9,6 @@ const auth = new AuthController()
 
 router.post('/create-find-user', authMiddleware.verifyToken, auth.createOrFindUser)
 
+router.post('/update', authMiddleware.verifyToken, auth.update)
+
 export default router

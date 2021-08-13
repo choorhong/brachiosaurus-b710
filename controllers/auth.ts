@@ -2,6 +2,7 @@ import { RequestHandler } from 'express'
 import User from '../db/models/user'
 import { ErrorMessage } from '../types/error'
 import { ROLES, STATUS } from '../types/user'
+import { isEmpty } from '../utils/helpers'
 import { BaseController } from './base'
 
 export default class AuthController extends BaseController {
@@ -30,6 +31,20 @@ export default class AuthController extends BaseController {
     } catch (err) {
       console.log('err', err)
       return this.unauthorized(res, ErrorMessage.INVALID_OR_EXPIRED_TOKEN)
+    }
+  }
+
+  public update: RequestHandler = async (req, res, next) => {
+    const { id, name } = req.body
+    const bodyArr = [id, name]
+
+    if (isEmpty(bodyArr)) return this.clientError(res, ErrorMessage.MISSING_DATA)
+
+    try {
+      const [numOfUpdatedUsers, updatedUsers] = await User.update({ name }, { where: { id } })
+      return this.ok(res, updatedUsers)
+    } catch (updateError) {
+      return this.fail(res, updateError)
     }
   }
 }
