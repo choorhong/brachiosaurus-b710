@@ -3,7 +3,7 @@ import { BaseController } from '../controllers/base'
 import User from '../db/models/user'
 import admin from '../firebase'
 import { ErrorMessage } from '../types/error'
-import { STATUS } from '../types/user'
+import { ROLES, STATUS } from '../types/user'
 
 export default class AuthMiddlewareController extends BaseController {
   public verifyToken: RequestHandler = async (req, res, next) => {
@@ -53,5 +53,12 @@ export default class AuthMiddlewareController extends BaseController {
     } catch (error) {
       return this.fail(res, error)
     }
+  }
+
+  public verifySuperAdmin: RequestHandler = async (req, res, next) => {
+    const { userRoleStatus } = res.locals
+    if (!userRoleStatus) return this.unauthorized(res)
+    if (ROLES.SUPER_ADMIN !== userRoleStatus.role) return this.unauthorized(res)
+    next()
   }
 }
