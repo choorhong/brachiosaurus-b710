@@ -1,4 +1,6 @@
 import { RequestHandler } from 'express'
+import moment from 'moment'
+import { Op } from 'sequelize'
 import Booking from '../db/models/booking'
 import Contact from '../db/models/contact'
 import PurchaseOrder from '../db/models/purchase-orders'
@@ -6,6 +8,7 @@ import Shipment from '../db/models/shipment'
 import Vessel from '../db/models/vessel'
 import { ErrorMessage } from '../types/error'
 import { ShipmentStatus } from '../types/shipment'
+import { weekStart, weekEnd } from '../utils/date'
 import { isEmpty } from '../utils/helpers'
 import { BaseController } from './base'
 
@@ -106,7 +109,26 @@ export default class ShipmentController extends BaseController {
     }
   }
 
+  /**
+   * Use like '/shipment/?cutOff=2021-08-10T07:28:04.204Z&next=true' or '/shipment/?cutOff=2021-08-10T07:28:04.204Z&previous=true'
+   * if next is true it will get next week's date from cutOff, if previous is true it will get last week's date from cutOff
+   * For example: cutOff = '2021-08-10T07:28:04.204Z' and next = true, it will query from 2021-08-16 to 2021-08-22
+   * Default '/shipment/' will query cutOff date within this week
+   */
   public getAll: RequestHandler = async (req, res) => {
+    const { cutOff, previous, next } = req.query
+    let start = weekStart
+    let end = weekEnd
+    if (cutOff) {
+      const cutOffDate = cutOff.toString()
+      if (previous) {
+        start = moment(cutOffDate).subtract(1, 'week').startOf('isoWeek')
+        end = moment(cutOffDate).subtract(1, 'week').endOf('isoWeek')
+      } else if (next) {
+        start = moment(cutOffDate).add(1, 'week').startOf('isoWeek')
+        end = moment(cutOffDate).add(1, 'week').endOf('isoWeek')
+      }
+    }
     try {
       const shipments = await Shipment.findAll({
         include: [
@@ -115,10 +137,18 @@ export default class ShipmentController extends BaseController {
           {
             model: Booking,
             include: [{
-              model: Vessel
-            }]
+              model: Vessel,
+              where: {
+                cutOff: {
+                  [Op.between]: [start, end]
+                } as any
+              },
+              required: true
+            }],
+            required: true
           }
-        ]
+        ],
+        order: [['booking', 'vessel', 'cutOff', 'ASC']]
       })
       if (!shipments) return this.notFound(res)
       return this.ok(res, shipments)
