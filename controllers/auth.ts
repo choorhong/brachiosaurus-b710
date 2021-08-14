@@ -47,4 +47,45 @@ export default class AuthController extends BaseController {
       return this.fail(res, updateError)
     }
   }
+
+  public getAll: RequestHandler = async (req, res) => {
+    try {
+      const users = await User.findAll()
+      if (!users) return this.notFound(res)
+      return this.ok(res, users)
+    } catch (error) {
+      return this.fail(res, error)
+    }
+  }
+
+  public read: RequestHandler = async (req, res) => {
+    const { id } = req.params
+
+    try {
+      const user = await User.findByPk(id)
+      if (!user) return this.notFound(res)
+      return this.ok(res, user)
+    } catch (readError) {
+      return this.fail(res, readError)
+    }
+  }
+
+  public updateRoleStatus: RequestHandler = async (req, res) => {
+    const id = req.params.id
+    const { role, status } = req.body
+    if (!id || (role && !Object.values(ROLES).includes(role)) || (status && !Object.values(STATUS).includes(status))) return this.clientError(res, ErrorMessage.MISSING_DATA)
+    try {
+      const [numOfUpdatedUsers, updatedUsers] = await User.update({
+        role,
+        status
+      }, {
+        where: {
+          id
+        }
+      })
+      return this.ok(res, updatedUsers)
+    } catch (updateError) {
+      return this.fail(res, updateError)
+    }
+  }
 }
