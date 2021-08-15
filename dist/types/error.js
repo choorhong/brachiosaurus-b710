@@ -1,0 +1,22 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ErrorMessage = void 0;
+var ErrorMessage;
+(function (ErrorMessage) {
+    ErrorMessage["PO_EXISTS"] = "PO_EXISTS";
+    ErrorMessage["BOOKING_EXISTS"] = "BOOKING_EXISTS";
+    ErrorMessage["USER_ACCOUNT_NOT_FOUND"] = "USER_ACCOUNT_NOT_FOUND";
+    ErrorMessage["INVALID_OR_EXPIRED_TOKEN"] = "INVALID_OR_EXPIRED_TOKEN";
+    ErrorMessage["INTERNAL_SERVER_ERROR"] = "INTERNAL_SERVER_ERROR";
+    ErrorMessage["INCORRECT_DETAILS"] = "INCORRECT_DETAILS";
+    ErrorMessage["UNAUTHORIZED"] = "UNAUTHORIZED";
+    ErrorMessage["PAYMENT_REQUIRED"] = "PAYMENT_REQUIRED";
+    ErrorMessage["FORBIDDEN"] = "FORBIDDEN";
+    ErrorMessage["NOT_FOUND"] = "NOT_FOUND";
+    ErrorMessage["CONFLICT"] = "CONFLICT";
+    ErrorMessage["TOO_MANY_REQUESTS"] = "TOO_MANY_REQUESTS";
+    ErrorMessage["MISSING_TOKEN"] = "MISSING_TOKEN";
+    ErrorMessage["MISSING_PARAMS"] = "MISSING_PARAMS";
+    ErrorMessage["MISSING_DATA"] = "MISSING_DATA";
+    ErrorMessage["SHORT_LENGTH"] = "SHORT_LENGTH";
+})(ErrorMessage = exports.ErrorMessage || (exports.ErrorMessage = {}));
