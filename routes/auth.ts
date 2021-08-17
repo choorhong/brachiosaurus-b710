@@ -4,11 +4,19 @@ import AuthController from '../controllers/auth'
 import AuthMiddlewareController from '../middlewares/auth'
 
 const router = Router()
-const authMiddleware = new AuthMiddlewareController()
+const { verifyToken, getUserRoleStatus, verifySuperAdmin } = new AuthMiddlewareController()
 const auth = new AuthController()
 
-router.post('/create-find-user', authMiddleware.verifyToken, auth.createOrFindUser)
+router.use(verifyToken)
 
-router.post('/update', authMiddleware.verifyToken, auth.update)
+router.post('/create-find-user', auth.createOrFindUser)
+
+router.post('/update', auth.update)
+
+router.get('/users', getUserRoleStatus, verifySuperAdmin, auth.getAll)
+
+router.get('/:id', getUserRoleStatus, verifySuperAdmin, auth.read)
+
+router.patch('/:id', getUserRoleStatus, verifySuperAdmin, auth.updateRoleStatus)
 
 export default router
