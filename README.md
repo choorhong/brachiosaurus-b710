@@ -56,3 +56,5 @@ Install and configure Heroku CLI.
 2. `git push heroku <local_branch_name>:master`.
 
 `heroku logs --tail` for logs. Env variables are in Heroku settings.
+
+https://brachapp.herokuapp.com
