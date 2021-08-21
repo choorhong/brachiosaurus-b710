@@ -48,3 +48,11 @@ If you are using an existing admin user as `DB_USERNAME` then skip below steps.
   ```
   npx sequelize-cli db:migrate:undo
   ```
+
+## Deploy:
+Install and configure Heroku CLI.
+
+1. Git add and git commit.
+2. `git push heroku <local_branch_name>:master`.
+
+`heroku logs --tail` for logs. Env variables are in Heroku settings.
