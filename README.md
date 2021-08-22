@@ -9,6 +9,11 @@ DB_HOST='127.0.0.1'
 DB_USERNAME=<any_username>
 DB_PASSWORD=<any_password>
 DB_NAME=<any_db_name>
+
+FIREBASE_PROJECT_ID=<value>
+FIREBASE_PRIVATE_KEY=<value>
+FIREBASE_CLIENT_EMAIL=<value>
+FIREBASE_DB=<value>
 ```
 
 ## How to run:
