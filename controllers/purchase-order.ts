@@ -124,4 +124,41 @@ export default class PurchaseOrderController extends BaseController {
       return this.fail(res, error)
     }
   }
+
+  public find: RequestHandler = async (req, res, next) => {
+    const { purchaseOrderId, vendor, status } = req.query
+    if (!purchaseOrderId && !vendor && !status) return this.getAll(req, res, next)
+    try {
+      const purchaseOrders = await PurchaseOrder.findAll({
+        where: {
+          ...(purchaseOrderId && {
+            purchaseOrderId: {
+              [Op.iLike]: `%${purchaseOrderId}%`
+            }
+          }),
+          ...(status && {
+            status: {
+              [Op.iLike]: `%${status}%`
+            }
+          })
+        },
+        include: [{
+          model: Contact,
+          as: 'vendor',
+          where: {
+            ...(vendor && {
+              name: {
+                [Op.iLike]: `%${vendor}%`
+              }
+            })
+          },
+          required: true
+        }]
+      })
+      if (!purchaseOrders) return this.notFound(res)
+      return this.ok(res, purchaseOrders)
+    } catch (error) {
+      return this.fail(res, error)
+    }
+  }
 }
