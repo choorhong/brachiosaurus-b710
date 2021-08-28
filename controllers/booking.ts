@@ -149,4 +149,46 @@ export default class BookingController extends BaseController {
       return this.fail(res, error)
     }
   }
+
+  public find: RequestHandler = async (req, res, next) => {
+    const { bookingId, forwarder, cutOffStartDate, cutOffEndDate } = req.query
+    if (!bookingId && !forwarder && !cutOffStartDate && !cutOffEndDate) return this.getAll(req, res, next)
+    try {
+      const bookings = await Booking.findAll({
+        where: {
+          ...(bookingId && { bookingId: { [Op.iLike]: `%${bookingId}%` } })
+        },
+        include: [
+          {
+            model: Contact,
+            as: 'forwarder',
+            where: {
+              ...(forwarder && {
+                name: {
+                  [Op.iLike]: `%${forwarder}%`
+                }
+              })
+            },
+            required: true
+          },
+          {
+            model: Vessel,
+            where: {
+              ...((cutOffStartDate && cutOffStartDate) && {
+                cutOff: {
+                  [Op.between]: [cutOffStartDate, cutOffEndDate]
+                } as any
+              })
+            },
+            required: true
+          }
+        ],
+        order: [['vessel', 'cutOff', 'ASC']]
+      })
+      if (!bookings) return this.notFound(res)
+      return this.ok(res, bookings)
+    } catch (error) {
+      return this.fail(res, error)
+    }
+  }
 }

@@ -156,4 +156,51 @@ export default class ShipmentController extends BaseController {
       return this.fail(res, error)
     }
   }
+
+  public find: RequestHandler = async (req, res, next) => {
+    const { purchaseOrderId, vendor, bookingId, status } = req.query
+    if (!purchaseOrderId && !status && !bookingId && !vendor) return this.getAll(req, res, next)
+    try {
+      const shipments = await Shipment.findAll({
+        where: {
+          ...(purchaseOrderId && {
+            purchaseOrderId: {
+              [Op.iLike]: `%${purchaseOrderId}%`
+            }
+          }),
+          ...(bookingId && {
+            bookingId: {
+              [Op.iLike]: `%${bookingId}%`
+            }
+          }),
+          ...(status && {
+            status: {
+              [Op.iLike]: `%${status}%`
+            }
+          })
+        },
+        include: [
+          { model: PurchaseOrder },
+          {
+            model: Contact,
+            as: 'vendor',
+            where: {
+              ...(vendor && {
+                name: {
+                  [Op.iLike]: `%${vendor}%`
+                }
+              })
+            },
+            required: true
+          },
+          { model: Booking, include: [{ model: Vessel }] }
+        ],
+        order: [['booking', 'vessel', 'cutOff', 'ASC']]
+      })
+      if (!shipments) return this.notFound(res)
+      return this.ok(res, shipments)
+    } catch (error) {
+      return this.fail(res, error)
+    }
+  }
 }

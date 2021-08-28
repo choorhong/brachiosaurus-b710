@@ -16,12 +16,15 @@ router.post('/create', booking.create)
 // use as /search/?bookingId=example
 router.get('/search', booking.search)
 
+// use as /find/?forwarder=example
+router.get('/find', booking.find)
+
+router.get('/', booking.getAll)
+
 router.get('/:id', queryParams.verifyIdParam, booking.read)
 
 router.post('/update', booking.update)
 
 router.delete('/:id', queryParams.verifyIdParam, booking.remove)
-
-router.get('/', booking.getAll)
 
 export default router

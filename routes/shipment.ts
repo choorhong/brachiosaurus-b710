@@ -13,12 +13,15 @@ router.use(auth.verifyToken)
 
 router.post('/create', shipment.create)
 
+// use as /find/?vendor=example
+router.get('/find', shipment.find)
+
+router.get('/', shipment.getAll)
+
 router.get('/:id', queryParams.verifyIdParam, shipment.read)
 
 router.post('/update', shipment.update)
 
 router.delete('/:id', queryParams.verifyIdParam, shipment.remove)
-
-router.get('/', shipment.getAll)
 
 export default router
