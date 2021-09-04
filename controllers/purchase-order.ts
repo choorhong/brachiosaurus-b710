@@ -80,7 +80,8 @@ export default class PurchaseOrderController extends BaseController {
       const purchaseOrders = await PurchaseOrder.findAll({
         include: [
           { model: Contact, as: 'vendor' }
-        ]
+        ],
+        order: [['createdAt', 'DESC']]
       })
       if (!purchaseOrders) return this.notFound(res)
       return this.ok(res, purchaseOrders)

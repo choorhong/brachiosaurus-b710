@@ -151,12 +151,16 @@ export default class BookingController extends BaseController {
   }
 
   public find: RequestHandler = async (req, res, next) => {
-    const { bookingId, forwarder, cutOffStartDate, cutOffEndDate } = req.query
-    if (!bookingId && !forwarder && !cutOffStartDate && !cutOffEndDate) return this.getAll(req, res, next)
+    const { bookingId, forwarder, cutOffStartDate, cutOffEndDate, departureLocation, arrivalLocation } = req.query
+    if (!bookingId && !forwarder && !cutOffStartDate && !cutOffEndDate && !departureLocation && !arrivalLocation) {
+      return this.getAll(req, res, next)
+    }
     try {
       const bookings = await Booking.findAll({
         where: {
-          ...(bookingId && { bookingId: { [Op.iLike]: `%${bookingId}%` } })
+          ...(bookingId && { bookingId: { [Op.iLike]: `%${bookingId}%` } }),
+          ...(departureLocation && { 'departure.location': { [Op.iLike]: `%${departureLocation}%` } }),
+          ...(arrivalLocation && { 'arrival.location': { [Op.iLike]: `%${arrivalLocation}%` } })
         },
         include: [
           {
