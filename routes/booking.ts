@@ -9,7 +9,7 @@ const auth = new AuthMiddlewareController()
 const queryParams = new QueryParamsMiddlewareController()
 const booking = new BookingController()
 
-router.use(auth.verifyToken)
+router.use(auth.verifyToken, auth.getUserRoleStatus, auth.verifyActiveStatus)
 
 router.post('/create', booking.create)
 

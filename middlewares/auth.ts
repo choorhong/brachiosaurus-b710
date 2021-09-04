@@ -35,18 +35,8 @@ export default class AuthMiddlewareController extends BaseController {
       const user = await User.findOne({ where: { email: firebaseUser.email } })
       if (!user) return this.notFound(res)
 
-      // account suspended >> subsequent data request will be rejected
-      if (user.status === STATUS.SUSPENDED) {
-        return this.unauthorized(res)
-      }
-
-      // account suspended >> subsequent data request will be rejected until account get approved > 'ACTIVE'
-      if (user.status === STATUS.PENDING) {
-        return this.unauthorized(res, 'PENDING_ACCOUNT_APPROVAL')
-      }
-
       res.locals.userRoleStatus = {
-        // status: user.status // assume user status is ONLY active (STATUS.ACTIVE) at this point
+        status: user.status,
         role: user.role
       }
       next()
@@ -55,10 +45,28 @@ export default class AuthMiddlewareController extends BaseController {
     }
   }
 
-  public verifySuperAdmin: RequestHandler = async (req, res, next) => {
+  public verifyActiveStatus: RequestHandler = async (req, res, next) => {
     const { userRoleStatus } = res.locals
     if (!userRoleStatus) return this.unauthorized(res)
-    if (ROLES.SUPER_ADMIN !== userRoleStatus.role) return this.unauthorized(res)
+
+    // account suspended >> subsequent data request will be rejected
+    if (userRoleStatus.status === STATUS.SUSPENDED) {
+      return this.unauthorized(res)
+    }
+
+    // account pending >> subsequent data request will be rejected until account get approved > 'ACTIVE'
+    if (userRoleStatus.status === STATUS.PENDING) {
+      return this.unauthorized(res, 'PENDING_ACCOUNT_APPROVAL')
+    }
+
+    // other account status not equals to active >> subsequent data request will be rejected
+    if (userRoleStatus.status !== STATUS.ACTIVE) return this.unauthorized(res)
+    next()
+  }
+
+  public verifySuperAdmin: RequestHandler = async (req, res, next) => {
+    const { userRoleStatus } = res.locals
+    if (!userRoleStatus || (userRoleStatus.role !== ROLES.SUPER_ADMIN)) return this.unauthorized(res)
     next()
   }
 }
