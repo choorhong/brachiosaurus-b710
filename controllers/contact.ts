@@ -69,8 +69,10 @@ export default class ContactController extends BaseController {
   }
 
   public getAll: RequestHandler = async (req, res) => {
+    const { page = 1 } = req.query
+    const pagination = { pg: +page, pgSize: 10 }
     try {
-      const contacts = await Contact.findAll()
+      const contacts = await Contact.findAndCountAll({ offset: (pagination.pg - 1) * pagination.pgSize, limit: pagination.pgSize })
       if (!contacts) return this.notFound(res)
       return this.ok(res, contacts)
     } catch (error) {
