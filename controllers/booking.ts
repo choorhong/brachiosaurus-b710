@@ -6,7 +6,7 @@ import Contact from '../db/models/contact'
 import Vessel from '../db/models/vessel'
 import { ErrorMessage } from '../types/error'
 import { weekEnd, weekStart } from '../utils/date'
-import { isEmpty } from '../utils/helpers'
+import { filters, isEmpty } from '../utils/helpers'
 import { BaseController } from './base'
 
 export default class BookingController extends BaseController {
@@ -118,9 +118,9 @@ export default class BookingController extends BaseController {
           {
             model: Vessel,
             where: {
-              cutOff: {
-                [Op.between]: [start, end]
-              } as any
+              // cutOff: {
+              //   [Op.between]: [start, end]
+              // } as any
             }
           }
         ],
@@ -152,38 +152,42 @@ export default class BookingController extends BaseController {
 
   public find: RequestHandler = async (req, res, next) => {
     const { bookingId, forwarder, cutOffStartDate, cutOffEndDate, departureLocation, arrivalLocation } = req.query
+    const queryObj = { bookingId, forwarder, cutOffStartDate, cutOffEndDate, departureLocation, arrivalLocation }
     if (!bookingId && !forwarder && !cutOffStartDate && !cutOffEndDate && !departureLocation && !arrivalLocation) {
       return this.getAll(req, res, next)
     }
     try {
       const bookings = await Booking.findAll({
-        where: {
-          ...(bookingId && { bookingId: { [Op.iLike]: `%${bookingId}%` } }),
-          ...(departureLocation && { 'departure.location': { [Op.iLike]: `%${departureLocation}%` } }),
-          ...(arrivalLocation && { 'arrival.location': { [Op.iLike]: `%${arrivalLocation}%` } })
-        },
+        where: filters('booking', queryObj),
+        // {
+        //   ...(bookingId && { bookingId: { [Op.iLike]: `%${bookingId}%` } }),
+        //   ...(departureLocation && { 'departure.location': { [Op.iLike]: `%${departureLocation}%` } }),
+        //   ...(arrivalLocation && { 'arrival.location': { [Op.iLike]: `%${arrivalLocation}%` } })
+        // },
         include: [
           {
             model: Contact,
             as: 'forwarder',
-            where: {
-              ...(forwarder && {
-                name: {
-                  [Op.iLike]: `%${forwarder}%`
-                }
-              })
-            },
+            where: filters('contact', queryObj),
+            // {
+            //   ...(forwarder && {
+            //     name: {
+            //       [Op.iLike]: `%${forwarder}%`
+            //     }
+            //   })
+            // },
             required: true
           },
           {
             model: Vessel,
-            where: {
-              ...((cutOffStartDate && cutOffStartDate) && {
-                cutOff: {
-                  [Op.between]: [cutOffStartDate, cutOffEndDate]
-                } as any
-              })
-            },
+            where: filters('vessel', queryObj),
+            // {
+            //   ...((cutOffStartDate && cutOffStartDate) && {
+            //     cutOff: {
+            //       [Op.between]: [cutOffStartDate, cutOffEndDate]
+            //     } as any
+            //   })
+            // },
             required: true
           }
         ],

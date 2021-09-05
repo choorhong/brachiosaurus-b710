@@ -2,7 +2,7 @@ import { RequestHandler } from 'express'
 import Contact from '../db/models/contact'
 import PurchaseOrder from '../db/models/purchase-orders'
 import { ErrorMessage } from '../types/error'
-import { isEmpty } from '../utils/helpers'
+import { filters, isEmpty } from '../utils/helpers'
 import { BaseController } from './base'
 import { Op } from 'sequelize'
 
@@ -45,12 +45,17 @@ export default class PurchaseOrderController extends BaseController {
   }
 
   public update: RequestHandler = async (req, res) => {
-    const { id, name, earliestReturningDate, cutOff, remarks } = req.body
-    const bodyArr = [id, name, earliestReturningDate, cutOff]
+    const { id, purchaseOrderId, users, status, vendorId, remarks } = req.body
+
+    const bodyArr = [purchaseOrderId, vendorId]
     if (isEmpty(bodyArr)) return this.clientError(res, ErrorMessage.MISSING_DATA)
 
     try {
       const [numOfUpdatedPurchaseOrders, updatedPurchaseOrders] = await PurchaseOrder.update({
+        purchaseOrderId,
+        users,
+        status,
+        vendorId,
         remarks
       }, {
         where: { id },
@@ -129,30 +134,34 @@ export default class PurchaseOrderController extends BaseController {
   public find: RequestHandler = async (req, res, next) => {
     const { purchaseOrderId, vendor, status } = req.query
     if (!purchaseOrderId && !vendor && !status) return this.getAll(req, res, next)
+
+    const queryObj = { purchaseOrderId, vendor, status }
     try {
       const purchaseOrders = await PurchaseOrder.findAll({
-        where: {
-          ...(purchaseOrderId && {
-            purchaseOrderId: {
-              [Op.iLike]: `%${purchaseOrderId}%`
-            }
-          }),
-          ...(status && {
-            status: {
-              [Op.iLike]: `%${status}%`
-            }
-          })
-        },
+        where: filters('purchaseOrder', queryObj),
+        // {
+        //   ...(purchaseOrderId && {
+        //     purchaseOrderId: {
+        //       [Op.iLike]: `%${purchaseOrderId}%`
+        //     }
+        //   }),
+        //   ...(status && {
+        //     status: {
+        //       [Op.iLike]: `%${status}%`
+        //     }
+        //   })
+        // },
         include: [{
           model: Contact,
           as: 'vendor',
-          where: {
-            ...(vendor && {
-              name: {
-                [Op.iLike]: `%${vendor}%`
-              }
-            })
-          },
+          where: filters('contact', queryObj),
+          // {
+          //   ...(vendor && {
+          //     name: {
+          //       [Op.iLike]: `%${vendor}%`
+          //     }
+          //   })
+          // },
           required: true
         }]
       })

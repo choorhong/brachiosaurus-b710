@@ -95,12 +95,12 @@ export default class VesselController extends BaseController {
     }
     try {
       const vessels = await Vessel.findAll({
-        where: {
-          cutOff: {
-            [Op.between]: [start, end]
-          } as any
-        },
-        order: [['cutOff', 'ASC']]
+        // where: {
+        //   cutOff: {
+        //     [Op.between]: [start, end]
+        //   } as any
+        // },
+        // order: [['cutOff', 'ASC']]
       })
       if (!vessels) return this.notFound(res)
       return this.ok(res, vessels)

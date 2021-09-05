@@ -9,7 +9,7 @@ import Vessel from '../db/models/vessel'
 import { ErrorMessage } from '../types/error'
 import { ShipmentStatus } from '../types/shipment'
 import { weekStart, weekEnd } from '../utils/date'
-import { isEmpty } from '../utils/helpers'
+import { filters, isEmpty } from '../utils/helpers'
 import { BaseController } from './base'
 
 export default class ShipmentController extends BaseController {
@@ -138,11 +138,11 @@ export default class ShipmentController extends BaseController {
             model: Booking,
             include: [{
               model: Vessel,
-              where: {
-                cutOff: {
-                  [Op.between]: [start, end]
-                } as any
-              },
+              // where: {
+              //   cutOff: {
+              //     [Op.between]: [start, end]
+              //   } as any
+              // },
               required: true
             }],
             required: true
@@ -160,40 +160,41 @@ export default class ShipmentController extends BaseController {
   public find: RequestHandler = async (req, res, next) => {
     const { purchaseOrderId, vendor, bookingId, status } = req.query
     if (!purchaseOrderId && !status && !bookingId && !vendor) return this.getAll(req, res, next)
+
+    const queryObj = { purchaseOrderId, vendor, bookingId, status }
     try {
       const shipments = await Shipment.findAll({
-        where: {
-          ...(purchaseOrderId && {
-            purchaseOrderId: {
-              [Op.iLike]: `%${purchaseOrderId}%`
-            }
-          }),
-          ...(bookingId && {
-            bookingId: {
-              [Op.iLike]: `%${bookingId}%`
-            }
-          }),
-          ...(status && {
-            status: {
-              [Op.iLike]: `%${status}%`
-            }
-          })
-        },
+        where: filters('shipment', queryObj),
+        // {
+        //   ...(status && {
+        //     status: {
+        //       [Op.iLike]: `%${status}%`
+        //     }
+        //   })
+        // },
         include: [
-          { model: PurchaseOrder },
+          {
+            model: PurchaseOrder,
+            where: filters('purchaseOrder', queryObj)
+          },
           {
             model: Contact,
             as: 'vendor',
-            where: {
-              ...(vendor && {
-                name: {
-                  [Op.iLike]: `%${vendor}%`
-                }
-              })
-            },
+            where: filters('contact', queryObj),
+            // {
+            //   ...(vendor && {
+            //     name: {
+            //       [Op.iLike]: `%${vendor}%`
+            //     }
+            //   })
+            // },
             required: true
           },
-          { model: Booking, include: [{ model: Vessel }] }
+          {
+            model: Booking,
+            where: filters('booking', queryObj),
+            include: [{ model: Vessel }]
+          }
         ],
         order: [['booking', 'vessel', 'cutOff', 'ASC']]
       })
