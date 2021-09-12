@@ -16,10 +16,8 @@ router.post('/create', purchaseOrder.create)
 // use as /search/?purchaseOrderId=example
 router.get('/search', purchaseOrder.search)
 
-// use as /find/?vendor=example
-router.get('/find', purchaseOrder.find)
-
-router.get('/', purchaseOrder.getAll)
+// use as /?vendor=example
+router.get('/', purchaseOrder.find)
 
 router.post('/input-search', purchaseOrder.inputSearch)
 

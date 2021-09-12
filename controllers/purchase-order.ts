@@ -80,21 +80,6 @@ export default class PurchaseOrderController extends BaseController {
     }
   }
 
-  public getAll: RequestHandler = async (req, res) => {
-    try {
-      const purchaseOrders = await PurchaseOrder.findAll({
-        include: [
-          { model: Contact, as: 'vendor' }
-        ],
-        order: [['createdAt', 'DESC']]
-      })
-      if (!purchaseOrders) return this.notFound(res)
-      return this.ok(res, purchaseOrders)
-    } catch (error) {
-      return this.fail(res, error)
-    }
-  }
-
   public inputSearch: RequestHandler = async (req, res) => {
     const { query } = req.body
 
@@ -132,38 +117,20 @@ export default class PurchaseOrderController extends BaseController {
   }
 
   public find: RequestHandler = async (req, res, next) => {
-    const { purchaseOrderId, vendor, status } = req.query
-    if (!purchaseOrderId && !vendor && !status) return this.getAll(req, res, next)
-
+    const { purchaseOrderId, vendor, status, page = 1 } = req.query
+    const pagination = { pg: +page, pgSize: 10 }
     const queryObj = { purchaseOrderId, vendor, status }
     try {
       const purchaseOrders = await PurchaseOrder.findAll({
         where: filters('purchaseOrder', queryObj),
-        // {
-        //   ...(purchaseOrderId && {
-        //     purchaseOrderId: {
-        //       [Op.iLike]: `%${purchaseOrderId}%`
-        //     }
-        //   }),
-        //   ...(status && {
-        //     status: {
-        //       [Op.iLike]: `%${status}%`
-        //     }
-        //   })
-        // },
         include: [{
           model: Contact,
           as: 'vendor',
           where: filters('contact', queryObj),
-          // {
-          //   ...(vendor && {
-          //     name: {
-          //       [Op.iLike]: `%${vendor}%`
-          //     }
-          //   })
-          // },
           required: true
-        }]
+        }],
+        offset: (pagination.pg - 1) * pagination.pgSize,
+        limit: pagination.pgSize
       })
       if (!purchaseOrders) return this.notFound(res)
       return this.ok(res, purchaseOrders)

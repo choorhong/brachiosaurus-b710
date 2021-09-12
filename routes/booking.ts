@@ -13,7 +13,7 @@ router.use(auth.verifyToken, auth.getUserRoleStatus, auth.verifyActiveStatus)
 
 router.post('/create', booking.create)
 
-// use as /find/?forwarder=example
+// use as /?forwarder=example
 router.get('/', booking.find)
 
 // use as /search/?bookingId=example
