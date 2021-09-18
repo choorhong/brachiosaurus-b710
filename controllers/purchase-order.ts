@@ -168,7 +168,7 @@ export default class PurchaseOrderController extends BaseController {
     if (term.length < 3) return this.fail(res, ErrorMessage.SHORT_LENGTH)
     let query = 'SELECT * FROM "purchaseOrders" WHERE vector @@ to_tsquery(:query)'
     if (ROLES.SUPER_ADMIN !== role) {
-      query = 'SELECT * FROM "purchaseOrders" WHERE vector @@ to_tsquery(:query) AND users @> ARRAY[:userId]::varchar[]'
+      query = 'SELECT * FROM "purchaseOrders" t1 JOIN "user_purchase_orders" t2 ON t1.id=t2."purchaseOrderUUId" WHERE vector @@ to_tsquery(:query) AND t2."userId"=:userId;'
     }
     try {
       const purchaseOrder = await PurchaseOrder.sequelize?.query(`${query};`, {
