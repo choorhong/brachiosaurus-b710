@@ -70,14 +70,13 @@ export default class PurchaseOrderController extends BaseController {
     const { id: userId, role } = userRoleStatus
     if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
 
-    const { id, purchaseOrderId, users, status, vendorId, remarks } = req.body
+    const { id, purchaseOrderId, status, vendorId, remarks } = req.body
     const bodyArr = [purchaseOrderId, vendorId]
     if (isEmpty(bodyArr)) return this.clientError(res, ErrorMessage.MISSING_DATA)
 
     try {
       const [numOfUpdatedPurchaseOrders, updatedPurchaseOrders] = await PurchaseOrder.update({
         purchaseOrderId,
-        users,
         status,
         vendorId,
         remarks
@@ -95,6 +94,47 @@ export default class PurchaseOrderController extends BaseController {
       return this.ok(res, updatedPurchaseOrders)
     } catch (updateError) {
       return this.fail(res, updateError)
+    }
+  }
+
+  public addUsers: RequestHandler = async (req, res) => {
+    const { userRoleStatus } = res.locals
+    if (!userRoleStatus) return this.forbidden(res)
+    const { id: userId, role } = userRoleStatus
+    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
+
+    // id is purchaseOrder row id, not to be confused with purchaseOrderId
+    const { users, id } = req.body
+    if (!users || !users.length || !id) return this.clientError(res, ErrorMessage.MISSING_DATA)
+
+    try {
+      const response = await UserPurchaseOrder.bulkCreate(users.map((userId: string) => ({ userId, purchaseOrderUUId: id })))
+      return this.ok(res, response)
+    } catch (error) {
+      return this.fail(res, error)
+    }
+  }
+
+  public removeUsers: RequestHandler = async (req, res) => {
+    const { userRoleStatus } = res.locals
+    if (!userRoleStatus) return this.forbidden(res)
+    const { id: userId, role } = userRoleStatus
+    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
+
+    // id is purchaseOrder uuid, not to be confused with purchaseOrderId
+    const { users, id }: { users: string[], id: string } = req.body
+    if (!users || !users.length || !id) return this.clientError(res, ErrorMessage.MISSING_DATA)
+
+    try {
+      const response = await UserPurchaseOrder.destroy({
+        where: {
+          userId: users,
+          purchaseOrderUUId: id
+        }
+      })
+      return this.ok(res, response)
+    } catch (error) {
+      return this.fail(res, error)
     }
   }
 

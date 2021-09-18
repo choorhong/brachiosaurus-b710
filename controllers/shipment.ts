@@ -94,7 +94,6 @@ export default class ShipmentController extends BaseController {
       vendorId,
       bookingId,
       status,
-      users,
       remarks,
       container
     } = req.body
@@ -107,7 +106,6 @@ export default class ShipmentController extends BaseController {
         vendorId,
         bookingId,
         status,
-        users,
         remarks,
         container
       }, {
@@ -123,6 +121,47 @@ export default class ShipmentController extends BaseController {
       return this.ok(res, updatedShipment)
     } catch (updateError) {
       return this.fail(res, updateError)
+    }
+  }
+
+  public addUsers: RequestHandler = async (req, res) => {
+    const { userRoleStatus } = res.locals
+    if (!userRoleStatus) return this.forbidden(res)
+    const { id: userId, role } = userRoleStatus
+    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
+
+    // id is shipment uuid
+    const { users, id } = req.body
+    if (!users || !users.length || !id) return this.clientError(res, ErrorMessage.MISSING_DATA)
+
+    try {
+      const response = await UserShipment.bulkCreate(users.map((userId: string) => ({ userId, shipmentId: id })))
+      return this.ok(res, response)
+    } catch (error) {
+      return this.fail(res, error)
+    }
+  }
+
+  public removeUsers: RequestHandler = async (req, res) => {
+    const { userRoleStatus } = res.locals
+    if (!userRoleStatus) return this.forbidden(res)
+    const { id: userId, role } = userRoleStatus
+    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
+
+    // id is shipment uuid
+    const { users, id }: { users: string[], id: string } = req.body
+    if (!users || !users.length || !id) return this.clientError(res, ErrorMessage.MISSING_DATA)
+
+    try {
+      const response = await UserShipment.destroy({
+        where: {
+          userId: users,
+          shipmentId: id
+        }
+      })
+      return this.ok(res, response)
+    } catch (error) {
+      return this.fail(res, error)
     }
   }
 

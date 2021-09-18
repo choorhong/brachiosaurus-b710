@@ -25,6 +25,10 @@ router.get('/:id', queryParams.verifyIdParam, purchaseOrder.read)
 
 router.post('/update', purchaseOrder.update)
 
+router.post('/update/add-user', purchaseOrder.addUsers)
+
+router.post('/update/remove-user', purchaseOrder.removeUsers)
+
 router.delete('/:id', queryParams.verifyIdParam, purchaseOrder.remove)
 
 export default router

@@ -20,6 +20,10 @@ router.get('/:id', queryParams.verifyIdParam, shipment.read)
 
 router.post('/update', shipment.update)
 
+router.post('/update/add-user', shipment.addUsers)
+
+router.post('/update/remove-user', shipment.removeUsers)
+
 router.delete('/:id', queryParams.verifyIdParam, shipment.remove)
 
 export default router
