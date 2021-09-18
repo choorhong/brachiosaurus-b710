@@ -13,10 +13,8 @@ router.use(auth.verifyToken, auth.getUserRoleStatus, auth.verifyActiveStatus)
 
 router.post('/create', shipment.create)
 
-// use as /find/?vendor=example
-router.get('/find', shipment.find)
-
-router.get('/', shipment.getAll)
+// use as /?vendor=example
+router.get('/', shipment.find)
 
 router.get('/:id', queryParams.verifyIdParam, shipment.read)
 
