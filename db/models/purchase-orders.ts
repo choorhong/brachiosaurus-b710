@@ -2,6 +2,8 @@ import { DataTypes } from 'sequelize'
 import { sequelize } from './index'
 import { PurchaseOrderInstance, STATUS } from '../../types/purchase-order'
 import Contact from './contact'
+import User from './user'
+import UserPurchaseOrder from './userPurchaseOrder'
 
 const statuses = Object.values(STATUS)
 
@@ -20,11 +22,6 @@ const PurchaseOrder = sequelize.define<PurchaseOrderInstance>(
       type: DataTypes.STRING,
       allowNull: false
     },
-    users: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
-      allowNull: true,
-      defaultValue: []
-    },
     status: {
       type: DataTypes.ENUM(...statuses),
       allowNull: true,
@@ -40,6 +37,15 @@ const PurchaseOrder = sequelize.define<PurchaseOrderInstance>(
     }
   }
 )
+
+User.belongsToMany(PurchaseOrder, {
+  through: UserPurchaseOrder,
+  foreignKey: 'userId'
+})
+PurchaseOrder.belongsToMany(User, {
+  through: UserPurchaseOrder,
+  foreignKey: 'purchaseOrderUUId'
+})
 
 // 1 contact (vendor) can own or has many purchase orders
 // 1 purchase order can only belong to 1 contact (vendor)

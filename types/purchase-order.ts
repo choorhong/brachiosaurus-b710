@@ -23,3 +23,14 @@ export interface PurchaseOrderInstance
       createdAt?: Date;
       updatedAt?: Date;
     }
+
+export interface UserPurchaseOrderAttributes {
+  id?: string;
+  userId: string;
+  purchaseOrderUUId: string; // not to be confused with purchaseOrderId
+}
+
+export interface UserPurchaseOrderInstance extends Model<UserPurchaseOrderAttributes>, UserPurchaseOrderAttributes {
+  createdAt?: Date;
+  updatedAt?: Date;
+}

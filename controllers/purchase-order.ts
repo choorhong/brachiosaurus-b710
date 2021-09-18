@@ -6,22 +6,27 @@ import { filters, isEmpty } from '../utils/helpers'
 import { BaseController } from './base'
 import { Op } from 'sequelize'
 import { ROLES } from '../types/user'
+import UserPurchaseOrder from '../db/models/userPurchaseOrder'
+import User from '../db/models/user'
 
 export default class PurchaseOrderController extends BaseController {
   public create: RequestHandler = async (req, res) => {
-    // TODO: Populate user id here from userRoleStatus?
-    const { purchaseOrderId, users, status, vendorId, remarks } = req.body
+    const { purchaseOrderId, status, vendorId, remarks, users } = req.body
     const bodyArr = [purchaseOrderId, vendorId]
     if (isEmpty(bodyArr)) return this.clientError(res, ErrorMessage.MISSING_DATA)
 
     try {
       const purchaseOrder = await PurchaseOrder.create({
         purchaseOrderId,
-        users,
         status,
         vendorId,
         remarks
       })
+      if (users.length) {
+        if (!purchaseOrder || !purchaseOrder.id) throw new Error('purchase order missing')
+        const userLinks = users.map((userId: string) => ({ userId, purchaseOrderUUId: purchaseOrder.id }))
+        await UserPurchaseOrder.bulkCreate(userLinks)
+      }
       return this.created(res, purchaseOrder)
     } catch (createError) {
       return this.fail(res, createError)
@@ -40,7 +45,8 @@ export default class PurchaseOrderController extends BaseController {
     try {
       const purchaseOrder = await PurchaseOrder.findOne({
         include: [
-          { model: Contact, as: 'vendor' }
+          { model: Contact, as: 'vendor' },
+          { model: User }
         ],
         where: {
           id,
@@ -202,6 +208,8 @@ export default class PurchaseOrderController extends BaseController {
           as: 'vendor',
           where: filters('contact', queryObj),
           required: true
+        }, {
+          model: User
         }],
         offset: (pagination.pg - 1) * pagination.pgSize,
         limit: pagination.pgSize

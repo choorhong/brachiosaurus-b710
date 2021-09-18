@@ -5,6 +5,7 @@ import Contact from '../db/models/contact'
 import PurchaseOrder from '../db/models/purchase-orders'
 import Shipment from '../db/models/shipment'
 import User from '../db/models/user'
+import UserShipment from '../db/models/userShipment'
 import Vessel from '../db/models/vessel'
 import { ErrorMessage } from '../types/error'
 import { ShipmentStatus } from '../types/shipment'
@@ -14,7 +15,6 @@ import { BaseController } from './base'
 
 export default class ShipmentController extends BaseController {
   public create: RequestHandler = async (req, res) => {
-    // TODO: populate user id here from userRoleStatus?
     const {
       purchaseOrderId,
       vendorId,
@@ -27,13 +27,17 @@ export default class ShipmentController extends BaseController {
     try {
       const shipment = await Shipment.create({
         status: status || ShipmentStatus.CREATED,
-        users,
         remarks,
         container,
         vendorId,
         bookingId, // uuid
         purchaseOrderId // uuid
       })
+      if (users.length) {
+        if (!shipment || !shipment.id) throw new Error('shipment missing')
+        const userLinks = users.map((userId: string) => ({ userId, shipmentId: shipment.id }))
+        await UserShipment.bulkCreate(userLinks)
+      }
       return this.created(res, shipment)
     } catch (createError) {
       return this.fail(res, createError)
