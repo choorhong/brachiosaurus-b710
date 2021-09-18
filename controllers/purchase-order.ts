@@ -46,15 +46,17 @@ export default class PurchaseOrderController extends BaseController {
       const purchaseOrder = await PurchaseOrder.findOne({
         include: [
           { model: Contact, as: 'vendor' },
-          { model: User }
+          {
+            model: User,
+            ...(ROLES.SUPER_ADMIN !== role && {
+              where: {
+                id: userId
+              }
+            })
+          }
         ],
         where: {
-          id,
-          ...(ROLES.SUPER_ADMIN !== role && {
-            users: {
-              [Op.contains]: [userId]
-            }
-          })
+          id
         }
       })
       if (!purchaseOrder) return this.notFound(res)
@@ -65,11 +67,6 @@ export default class PurchaseOrderController extends BaseController {
   }
 
   public update: RequestHandler = async (req, res) => {
-    const { userRoleStatus } = res.locals
-    if (!userRoleStatus) return this.forbidden(res)
-    const { id: userId, role } = userRoleStatus
-    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
-
     const { id, purchaseOrderId, status, vendorId, remarks } = req.body
     const bodyArr = [purchaseOrderId, vendorId]
     if (isEmpty(bodyArr)) return this.clientError(res, ErrorMessage.MISSING_DATA)
@@ -82,12 +79,7 @@ export default class PurchaseOrderController extends BaseController {
         remarks
       }, {
         where: {
-          id,
-          ...(ROLES.SUPER_ADMIN !== role && {
-            users: {
-              [Op.contains]: [userId]
-            }
-          })
+          id
         },
         returning: true
       })
@@ -98,11 +90,6 @@ export default class PurchaseOrderController extends BaseController {
   }
 
   public addUsers: RequestHandler = async (req, res) => {
-    const { userRoleStatus } = res.locals
-    if (!userRoleStatus) return this.forbidden(res)
-    const { id: userId, role } = userRoleStatus
-    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
-
     // id is purchaseOrder row id, not to be confused with purchaseOrderId
     const { users, id } = req.body
     if (!users || !users.length || !id) return this.clientError(res, ErrorMessage.MISSING_DATA)
@@ -116,11 +103,6 @@ export default class PurchaseOrderController extends BaseController {
   }
 
   public removeUsers: RequestHandler = async (req, res) => {
-    const { userRoleStatus } = res.locals
-    if (!userRoleStatus) return this.forbidden(res)
-    const { id: userId, role } = userRoleStatus
-    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
-
     // id is purchaseOrder uuid, not to be confused with purchaseOrderId
     const { users, id }: { users: string[], id: string } = req.body
     if (!users || !users.length || !id) return this.clientError(res, ErrorMessage.MISSING_DATA)
@@ -139,23 +121,13 @@ export default class PurchaseOrderController extends BaseController {
   }
 
   public remove: RequestHandler = async (req, res) => {
-    const { userRoleStatus } = res.locals
-    if (!userRoleStatus) return this.forbidden(res)
-    const { id: userId, role } = userRoleStatus
-    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
-
     const { id } = req.params
     if (!id) return this.fail(res, ErrorMessage.MISSING_DATA)
 
     try {
       await PurchaseOrder.destroy({
         where: {
-          id,
-          ...(ROLES.SUPER_ADMIN !== role && {
-            users: {
-              [Op.contains]: [userId]
-            }
-          })
+          id
         }
       })
       return this.ok(res)
@@ -177,13 +149,18 @@ export default class PurchaseOrderController extends BaseController {
         where: {
           purchaseOrderId: {
             [Op.iLike]: `%${query}%`
-          },
-          ...(ROLES.SUPER_ADMIN !== role && {
-            users: {
-              [Op.contains]: [userId]
-            }
-          })
-        }
+          }
+        },
+        include: [
+          {
+            model: User,
+            ...(ROLES.SUPER_ADMIN !== role && {
+              where: {
+                id: userId
+              }
+            })
+          }
+        ]
       })
       if (!purchaseOrders) return this.notFound(res)
       return this.ok(res, purchaseOrders)
@@ -235,21 +212,19 @@ export default class PurchaseOrderController extends BaseController {
     const queryObj = { purchaseOrderId, vendor, status }
     try {
       const purchaseOrders = await PurchaseOrder.findAll({
-        where: {
-          ...filters('purchaseOrder', queryObj),
-          ...(ROLES.SUPER_ADMIN !== role && {
-            users: {
-              [Op.contains]: [userId]
-            }
-          })
-        },
+        where: filters('purchaseOrder', queryObj),
         include: [{
           model: Contact,
           as: 'vendor',
           where: filters('contact', queryObj),
           required: true
         }, {
-          model: User
+          model: User,
+          ...(ROLES.SUPER_ADMIN !== role && {
+            where: {
+              id: userId
+            }
+          })
         }],
         offset: (pagination.pg - 1) * pagination.pgSize,
         limit: pagination.pgSize

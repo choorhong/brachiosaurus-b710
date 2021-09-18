@@ -1,5 +1,4 @@
 import { RequestHandler } from 'express'
-import { Op } from 'sequelize'
 import Booking from '../db/models/booking'
 import Contact from '../db/models/contact'
 import PurchaseOrder from '../db/models/purchase-orders'
@@ -64,15 +63,17 @@ export default class ShipmentController extends BaseController {
               model: Vessel
             }]
           },
-          { model: User }
+          {
+            model: User,
+            ...(ROLES.SUPER_ADMIN !== role && {
+              where: {
+                id: userId
+              }
+            })
+          }
         ],
         where: {
-          id,
-          ...(ROLES.SUPER_ADMIN !== role && {
-            users: {
-              [Op.contains]: [userId]
-            }
-          })
+          id
         }
       })
       if (!shipment) return this.notFound(res)
@@ -83,11 +84,6 @@ export default class ShipmentController extends BaseController {
   }
 
   public update: RequestHandler = async (req, res) => {
-    const { userRoleStatus } = res.locals
-    if (!userRoleStatus) return this.forbidden(res)
-    const { id: userId, role } = userRoleStatus
-    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
-
     const {
       id,
       purchaseOrderId,
@@ -110,12 +106,7 @@ export default class ShipmentController extends BaseController {
         container
       }, {
         where: {
-          id,
-          ...(ROLES.SUPER_ADMIN !== role && {
-            users: {
-              [Op.contains]: [userId]
-            }
-          })
+          id
         }
       })
       return this.ok(res, updatedShipment)
@@ -125,11 +116,6 @@ export default class ShipmentController extends BaseController {
   }
 
   public addUsers: RequestHandler = async (req, res) => {
-    const { userRoleStatus } = res.locals
-    if (!userRoleStatus) return this.forbidden(res)
-    const { id: userId, role } = userRoleStatus
-    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
-
     // id is shipment uuid
     const { users, id } = req.body
     if (!users || !users.length || !id) return this.clientError(res, ErrorMessage.MISSING_DATA)
@@ -143,11 +129,6 @@ export default class ShipmentController extends BaseController {
   }
 
   public removeUsers: RequestHandler = async (req, res) => {
-    const { userRoleStatus } = res.locals
-    if (!userRoleStatus) return this.forbidden(res)
-    const { id: userId, role } = userRoleStatus
-    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
-
     // id is shipment uuid
     const { users, id }: { users: string[], id: string } = req.body
     if (!users || !users.length || !id) return this.clientError(res, ErrorMessage.MISSING_DATA)
@@ -166,23 +147,13 @@ export default class ShipmentController extends BaseController {
   }
 
   public remove: RequestHandler = async (req, res) => {
-    const { userRoleStatus } = res.locals
-    if (!userRoleStatus) return this.forbidden(res)
-    const { id: userId, role } = userRoleStatus
-    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
-
     const { id } = req.params
     if (!id) return this.fail(res, ErrorMessage.MISSING_DATA)
 
     try {
       await Shipment.destroy({
         where: {
-          id,
-          ...(ROLES.SUPER_ADMIN !== role && {
-            users: {
-              [Op.contains]: [userId]
-            }
-          })
+          id
         }
       })
       return this.ok(res)
@@ -203,14 +174,7 @@ export default class ShipmentController extends BaseController {
 
     try {
       const shipments = await Shipment.findAll({
-        where: {
-          ...filters('shipment', queryObj),
-          ...(ROLES.SUPER_ADMIN !== role && {
-            users: {
-              [Op.contains]: [userId]
-            }
-          })
-        },
+        where: filters('shipment', queryObj),
         include: [
           {
             model: PurchaseOrder,
@@ -227,7 +191,14 @@ export default class ShipmentController extends BaseController {
             where: filters('booking', queryObj),
             include: [{ model: Vessel }]
           },
-          { model: User }
+          {
+            model: User,
+            ...(ROLES.SUPER_ADMIN !== role && {
+              where: {
+                id: userId
+              }
+            })
+          }
         ],
         order: [['booking', 'vessel', 'cutOff', 'ASC']],
         offset: (pagination.pg - 1) * pagination.pgSize,

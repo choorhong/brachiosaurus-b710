@@ -19,7 +19,8 @@ module.exports = {
             model: 'users',
             key: 'id'
           },
-          as: 'userId'
+          as: 'userId',
+          onDelete: 'CASCADE'
         },
         purchaseOrderUUId: {
           type: DataTypes.UUID,
@@ -27,7 +28,8 @@ module.exports = {
             model: 'purchaseOrders',
             key: 'id'
           },
-          as: 'purchaseOrderUUId'
+          as: 'purchaseOrderUUId',
+          onDelete: 'CASCADE'
         },
         createdAt: {
           allowNull: false,
