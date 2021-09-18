@@ -4,6 +4,7 @@ import Booking from '../db/models/booking'
 import Contact from '../db/models/contact'
 import PurchaseOrder from '../db/models/purchase-orders'
 import Shipment from '../db/models/shipment'
+import User from '../db/models/user'
 import Vessel from '../db/models/vessel'
 import { ErrorMessage } from '../types/error'
 import { ShipmentStatus } from '../types/shipment'
@@ -58,7 +59,8 @@ export default class ShipmentController extends BaseController {
             include: [{
               model: Vessel
             }]
-          }
+          },
+          { model: User }
         ],
         where: {
           id,
@@ -181,7 +183,8 @@ export default class ShipmentController extends BaseController {
             model: Booking,
             where: filters('booking', queryObj),
             include: [{ model: Vessel }]
-          }
+          },
+          { model: User }
         ],
         order: [['booking', 'vessel', 'cutOff', 'ASC']],
         offset: (pagination.pg - 1) * pagination.pgSize,
