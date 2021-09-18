@@ -1,4 +1,5 @@
 import { RequestHandler } from 'express'
+import { Op } from 'sequelize'
 import Booking from '../db/models/booking'
 import Contact from '../db/models/contact'
 import PurchaseOrder from '../db/models/purchase-orders'
@@ -6,11 +7,13 @@ import Shipment from '../db/models/shipment'
 import Vessel from '../db/models/vessel'
 import { ErrorMessage } from '../types/error'
 import { ShipmentStatus } from '../types/shipment'
+import { ROLES } from '../types/user'
 import { filters, isEmpty } from '../utils/helpers'
 import { BaseController } from './base'
 
 export default class ShipmentController extends BaseController {
   public create: RequestHandler = async (req, res) => {
+    // TODO: populate user id here from userRoleStatus?
     const {
       purchaseOrderId,
       vendorId,
@@ -37,11 +40,16 @@ export default class ShipmentController extends BaseController {
   }
 
   public read: RequestHandler = async (req, res) => {
+    const { userRoleStatus } = res.locals
+    if (!userRoleStatus) return this.forbidden(res)
+    const { id: userId, role } = userRoleStatus
+    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
+
     const { id } = req.params
     if (!id) return this.fail(res, ErrorMessage.MISSING_DATA)
 
     try {
-      const shipment = await Shipment.findByPk(id, {
+      const shipment = await Shipment.findOne({
         include: [
           { model: PurchaseOrder },
           { model: Contact, as: 'vendor' },
@@ -50,7 +58,16 @@ export default class ShipmentController extends BaseController {
             include: [{
               model: Vessel
             }]
-          }]
+          }
+        ],
+        where: {
+          id,
+          ...(ROLES.SUPER_ADMIN !== role && {
+            users: {
+              [Op.contains]: [userId]
+            }
+          })
+        }
       })
       if (!shipment) return this.notFound(res)
       return this.ok(res, shipment)
@@ -60,6 +77,11 @@ export default class ShipmentController extends BaseController {
   }
 
   public update: RequestHandler = async (req, res) => {
+    const { userRoleStatus } = res.locals
+    if (!userRoleStatus) return this.forbidden(res)
+    const { id: userId, role } = userRoleStatus
+    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
+
     const {
       id,
       purchaseOrderId,
@@ -84,7 +106,12 @@ export default class ShipmentController extends BaseController {
         container
       }, {
         where: {
-          id
+          id,
+          ...(ROLES.SUPER_ADMIN !== role && {
+            users: {
+              [Op.contains]: [userId]
+            }
+          })
         }
       })
       return this.ok(res, updatedShipment)
@@ -94,11 +121,24 @@ export default class ShipmentController extends BaseController {
   }
 
   public remove: RequestHandler = async (req, res) => {
+    const { userRoleStatus } = res.locals
+    if (!userRoleStatus) return this.forbidden(res)
+    const { id: userId, role } = userRoleStatus
+    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
+
     const { id } = req.params
     if (!id) return this.fail(res, ErrorMessage.MISSING_DATA)
+
     try {
       await Shipment.destroy({
-        where: { id }
+        where: {
+          id,
+          ...(ROLES.SUPER_ADMIN !== role && {
+            users: {
+              [Op.contains]: [userId]
+            }
+          })
+        }
       })
       return this.ok(res)
     } catch (removeError) {
@@ -107,12 +147,25 @@ export default class ShipmentController extends BaseController {
   }
 
   public find: RequestHandler = async (req, res, next) => {
+    const { userRoleStatus } = res.locals
+    if (!userRoleStatus) return this.forbidden(res)
+    const { id: userId, role } = userRoleStatus
+    if (ROLES.SUPER_ADMIN !== role && !userId) return this.forbidden(res)
+
     const { purchaseOrderId, vendor, bookingId, status, page = 1 } = req.query
     const queryObj = { purchaseOrderId, vendor, bookingId, status }
     const pagination = { pg: +page, pgSize: 10 }
+
     try {
       const shipments = await Shipment.findAll({
-        where: filters('shipment', queryObj),
+        where: {
+          ...filters('shipment', queryObj),
+          ...(ROLES.SUPER_ADMIN !== role && {
+            users: {
+              [Op.contains]: [userId]
+            }
+          })
+        },
         include: [
           {
             model: PurchaseOrder,

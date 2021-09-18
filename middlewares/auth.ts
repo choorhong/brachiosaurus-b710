@@ -37,7 +37,8 @@ export default class AuthMiddlewareController extends BaseController {
 
       res.locals.userRoleStatus = {
         status: user.status,
-        role: user.role
+        role: user.role,
+        id: user.id
       }
       next()
     } catch (error) {
