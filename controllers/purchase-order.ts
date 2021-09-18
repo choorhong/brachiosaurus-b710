@@ -89,6 +89,7 @@ export default class PurchaseOrderController extends BaseController {
     }
   }
 
+  // TODO: super admin only?
   public addUsers: RequestHandler = async (req, res) => {
     // id is purchaseOrder row id, not to be confused with purchaseOrderId
     const { users, id } = req.body
@@ -102,6 +103,7 @@ export default class PurchaseOrderController extends BaseController {
     }
   }
 
+  // TODO: super admin only?
   public removeUsers: RequestHandler = async (req, res) => {
     // id is purchaseOrder uuid, not to be confused with purchaseOrderId
     const { users, id }: { users: string[], id: string } = req.body

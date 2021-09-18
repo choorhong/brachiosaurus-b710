@@ -7,7 +7,7 @@ export const checkUserPurchaseOrderPermission: RequestHandler = async (req, res,
   const { userRoleStatus } = res.locals
   if (!userRoleStatus) return res.status(403).json({ message: ErrorMessage.FORBIDDEN })
   const { id: userId, role } = userRoleStatus
-  if (ROLES.SUPER_ADMIN === role) next()
+  if (ROLES.SUPER_ADMIN === role) return next()
   if (!userId) return res.status(403).json({ message: ErrorMessage.FORBIDDEN })
 
   let purchaseOrderUUId = req.params.id
@@ -21,7 +21,7 @@ export const checkUserPurchaseOrderPermission: RequestHandler = async (req, res,
       }
     })
     if (!response) return res.status(403).json({ message: ErrorMessage.FORBIDDEN })
-    next()
+    return next()
   } catch (error) {
     return res.status(500).json({ message: ErrorMessage.INTERNAL_SERVER_ERROR })
   }

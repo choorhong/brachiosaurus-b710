@@ -115,6 +115,7 @@ export default class ShipmentController extends BaseController {
     }
   }
 
+  // TODO: super admin only?
   public addUsers: RequestHandler = async (req, res) => {
     // id is shipment uuid
     const { users, id } = req.body
@@ -128,6 +129,7 @@ export default class ShipmentController extends BaseController {
     }
   }
 
+  // TODO: super admin only?
   public removeUsers: RequestHandler = async (req, res) => {
     // id is shipment uuid
     const { users, id }: { users: string[], id: string } = req.body
