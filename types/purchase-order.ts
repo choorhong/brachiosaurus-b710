@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { Model } from 'sequelize/types'
+import { UserInstance } from './user'
 
 export enum STATUS {
     CREATED = 'CREATED',
@@ -11,7 +12,7 @@ export interface PurchaseOrderAttributes {
   id?: string;
   purchaseOrderId: string;
   status: STATUS;
-  users?: string[];
+  users?: UserInstance[];
   remarks: string;
   vendorId?: string;
   vector?: string;
