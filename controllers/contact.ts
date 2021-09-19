@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express'
 import Contact from '../db/models/contact'
 import { ErrorMessage } from '../types/error'
-import { isEmpty } from '../utils/helpers'
+import { filters, isEmpty } from '../utils/helpers'
 import { BaseController } from './base'
 
 export default class ContactController extends BaseController {
@@ -68,11 +68,17 @@ export default class ContactController extends BaseController {
     }
   }
 
-  public getAll: RequestHandler = async (req, res) => {
-    const { page = 1 } = req.query
+  public find: RequestHandler = async (req, res, next) => {
+    const { name, role, page = 1 } = req.query
     const pagination = { pg: +page, pgSize: 10 }
+    const queryObj = { name, role }
+
     try {
-      const contacts = await Contact.findAndCountAll({ offset: (pagination.pg - 1) * pagination.pgSize, limit: pagination.pgSize })
+      const contacts = await Contact.findAndCountAll({
+        where: filters('contact', queryObj),
+        offset: (pagination.pg - 1) * pagination.pgSize,
+        limit: pagination.pgSize
+      })
       if (!contacts) return this.notFound(res)
       return this.ok(res, contacts)
     } catch (error) {

@@ -35,10 +35,13 @@ export const filters = (filterType: string, queryObj: Record<string, any>) => {
     case 'contact':
       return {
         ...(queryObj.forwarder && { id: { [Op.eq]: queryObj.forwarder } }),
-        ...(queryObj.vendor && { id: { [Op.eq]: queryObj.vendor } })
+        ...(queryObj.vendor && { id: { [Op.eq]: queryObj.vendor } }),
+        ...(queryObj.name && { name: { [Op.iLike]: `%${queryObj.name}%` } }),
+        ...(queryObj.role && { roles: { [Op.contains]: [queryObj.role] } })
       }
     case 'vessel':
       return {
+        ...(queryObj.name && { name: { [Op.iLike]: `%${queryObj.name}%` } }),
         ...((queryObj.cutOffStartDate && queryObj.cutOffEndDate) && { cutOff: { [Op.between]: [queryObj.cutOffStartDate, queryObj.cutOffEndDate] } })
       }
     case 'purchaseOrder':

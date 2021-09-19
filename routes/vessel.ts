@@ -22,6 +22,6 @@ router.post('/update', vessel.update)
 
 router.delete('/:id', queryParams.verifyIdParam, vessel.remove)
 
-router.get('/', vessel.getAll)
+router.get('/', vessel.find)
 
 export default router

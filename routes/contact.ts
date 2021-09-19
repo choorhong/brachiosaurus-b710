@@ -22,6 +22,6 @@ router.post('/update', contact.update)
 
 router.delete('/:id', queryParams.verifyIdParam, contact.remove)
 
-router.get('/', contact.getAll)
+router.get('/', contact.find)
 
 export default router
