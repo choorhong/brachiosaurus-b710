@@ -3,6 +3,7 @@ import { Model } from 'sequelize/types'
 import { BookingInstance } from './booking'
 import { ContactInstance } from './contact'
 import { PurchaseOrderInstance } from './purchase-order'
+import { UserInstance } from './user'
 
 export enum ShipmentStatus {
   CREATED = 'CREATED',
@@ -22,7 +23,7 @@ export interface ShipmentAttributes {
   bookingId?: string;
   booking?: BookingInstance;
   status?: ShipmentStatus;
-  users: string[];
+  users?: UserInstance[];
   remarks?: string;
   container?: string;
 }
@@ -33,3 +34,14 @@ export interface ShipmentInstance
       createdAt?: Date;
       updatedAt?: Date;
     }
+
+export interface UserShipmentAttributes {
+  id?: string;
+  userId: string;
+  shipmentId: string;
+}
+
+export interface UserShipmentInstance extends Model<UserShipmentAttributes>, UserShipmentAttributes {
+  createdAt?: Date;
+  updatedAt?: Date;
+}

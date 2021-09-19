@@ -4,6 +4,8 @@ import { ShipmentInstance, ShipmentStatus } from '../../types/shipment'
 import PurchaseOrder from './purchase-orders'
 import Booking from './booking'
 import Contact from './contact'
+import User from './user'
+import UserShipment from './userShipment'
 
 const Shipment = sequelize.define<ShipmentInstance>(
   'shipments',
@@ -21,11 +23,6 @@ const Shipment = sequelize.define<ShipmentInstance>(
       allowNull: true,
       defaultValue: ShipmentStatus.CREATED
     },
-    users: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
-      allowNull: true,
-      defaultValue: []
-    },
     remarks: {
       type: DataTypes.STRING,
       allowNull: true
@@ -36,6 +33,15 @@ const Shipment = sequelize.define<ShipmentInstance>(
     }
   }
 )
+
+User.belongsToMany(Shipment, {
+  through: UserShipment,
+  foreignKey: 'userId'
+})
+Shipment.belongsToMany(User, {
+  through: UserShipment,
+  foreignKey: 'shipmentId'
+})
 
 PurchaseOrder.hasMany(Shipment, {
   foreignKey: 'purchaseOrderId'
