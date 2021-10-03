@@ -175,7 +175,7 @@ export default class ShipmentController extends BaseController {
     const pagination = { pg: +page, pgSize: 10 }
 
     try {
-      const shipments = await Shipment.findAll({
+      const shipments = await Shipment.findAndCountAll({
         where: filters('shipment', queryObj),
         include: [
           {

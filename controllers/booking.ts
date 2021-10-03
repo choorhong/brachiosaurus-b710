@@ -125,7 +125,7 @@ export default class BookingController extends BaseController {
     const pagination = { pg: +page, pgSize: 10 }
     const queryObj = { bookingId, forwarder, cutOffStartDate: start, cutOffEndDate: end, departureLocation, arrivalLocation }
     try {
-      const bookings = await Booking.findAll({
+      const bookings = await Booking.findAndCountAll({
         where: filters('booking', queryObj),
         include: [
           {

@@ -213,7 +213,7 @@ export default class PurchaseOrderController extends BaseController {
     const pagination = { pg: +page, pgSize: 10 }
     const queryObj = { purchaseOrderId, vendor, status }
     try {
-      const purchaseOrders = await PurchaseOrder.findAll({
+      const purchaseOrders = await PurchaseOrder.findAndCountAll({
         where: filters('purchaseOrder', queryObj),
         include: [{
           model: Contact,
