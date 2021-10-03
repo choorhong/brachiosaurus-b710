@@ -9,6 +9,11 @@ DB_HOST='127.0.0.1'
 DB_USERNAME=<any_username>
 DB_PASSWORD=<any_password>
 DB_NAME=<any_db_name>
+
+FIREBASE_PROJECT_ID=<value>
+FIREBASE_PRIVATE_KEY=<value>
+FIREBASE_CLIENT_EMAIL=<value>
+FIREBASE_DB=<value>
 ```
 
 ## How to run:
@@ -48,3 +53,13 @@ If you are using an existing admin user as `DB_USERNAME` then skip below steps.
   ```
   npx sequelize-cli db:migrate:undo
   ```
+
+## Deploy:
+Install and configure Heroku CLI.
+
+1. Git add and git commit.
+2. `git push heroku <local_branch_name>:master`.
+
+`heroku logs --tail` for logs. Env variables are in Heroku settings.
+
+https://brachapp.herokuapp.com

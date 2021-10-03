@@ -1,9 +1,25 @@
 import { Router } from 'express'
-import { createOrFindUser } from '../controllers/auth'
-import { verifyToken } from '../middlewares/auth'
+
+import AuthController from '../controllers/auth'
+import AuthMiddlewareController from '../middlewares/auth'
 
 const router = Router()
+const { verifyToken, getUserRoleStatus, verifyActiveStatus, verifySuperAdmin } = new AuthMiddlewareController()
+const auth = new AuthController()
 
-router.post('/create-find-user', verifyToken, createOrFindUser)
+router.use(verifyToken)
+
+router.post('/create-find-user', auth.createOrFindUser)
+
+// update user info
+router.post('/update', auth.update)
+
+router.use(getUserRoleStatus, verifyActiveStatus, verifySuperAdmin)
+
+router.get('/users', auth.getAll)
+
+router.get('/:id', auth.read)
+
+router.patch('/:id', auth.updateRoleStatus)
 
 export default router

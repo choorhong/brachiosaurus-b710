@@ -5,3 +5,6 @@
 /firebase/*.json
 .env*
 .DS_Store
+15Five.txt
+
+dist/

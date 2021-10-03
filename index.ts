@@ -1,12 +1,16 @@
 import express, { ErrorRequestHandler } from 'express'
 import dotenv from 'dotenv'
 
-import cors from './middlewares/cors'
+import cors from 'cors'
 
 import authRoutes from './routes/auth'
 import contactRoutes from './routes/contact'
 import vesselRoutes from './routes/vessel'
 import bookingRoutes from './routes/booking'
+import purchaseOrderRoutes from './routes/purchase-order'
+import shipmentRoutes from './routes/shipment'
+// import purchaseOrderRoutes from './routes/shipment'
+import { sequelize } from './db/models'
 
 const handleError: ErrorRequestHandler = (err, req, res, next) => {
   res.status(500).json({ message: err.message, statusCode: err.statusCode })
@@ -14,13 +18,15 @@ const handleError: ErrorRequestHandler = (err, req, res, next) => {
 
 // Initialize environmental variables
 dotenv.config()
-const { DATABASE_CONNECTION_STRING, DATABASE, PORT } = process.env
+const { PORT } = process.env
 
 // Initialize app
 const app = express()
 
 // Configure app
-app.use(cors)
+app.use(cors({
+  allowedHeaders: ['Content-Type', 'Authorization']
+}))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
@@ -29,23 +35,19 @@ app.use('/auth', authRoutes)
 app.use('/contact', contactRoutes)
 app.use('/vessel', vesselRoutes)
 app.use('/booking', bookingRoutes)
+app.use('/purchase-order', purchaseOrderRoutes)
+app.use('/shipment', shipmentRoutes)
 
 // Configure Express fallback error handler
 app.use(handleError)
-// app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-//     res.status(500).json({ message: error.message })
-// })
 
 // Set up database & server
-// if (!DATABASE_CONNECTION_STRING || !DATABASE) throw 'DB UNDEFINED'
-// mongoose.connect(`${DATABASE_CONNECTION_STRING}/${DATABASE}`, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
-//   .then(() => {
-//     console.log(`Connected to db @ ${DATABASE_CONNECTION_STRING}/${DATABASE}, listening on Port ${PORT}`)
-//     app.listen(PORT)
-//   })
-//   .catch(err => {
-//     console.log('Mongoose error: ', err.message)
-//   })
-app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`)
-})
+sequelize.authenticate().then(
+  () => {
+    app.listen(PORT, () => {
+      console.log(`Listening on port ${PORT}`)
+    })
+  })
+  .catch(err => {
+    console.log('Connection error: ', err.message)
+  })

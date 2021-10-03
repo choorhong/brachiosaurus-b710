@@ -1,17 +1,28 @@
 import { Router } from 'express'
-import { create, read, update, remove } from '../controllers/booking'
-import { verifyToken, verifyIdParam } from '../middlewares/auth'
+
+import AuthMiddlewareController from '../middlewares/auth'
+import QueryParamsMiddlewareController from '../middlewares/query-params'
+import BookingController from '../controllers/booking'
 
 const router = Router()
+const auth = new AuthMiddlewareController()
+const queryParams = new QueryParamsMiddlewareController()
+const booking = new BookingController()
 
-router.use(verifyToken)
+router.use(auth.verifyToken, auth.getUserRoleStatus, auth.verifyActiveStatus)
 
-router.post('/create', create)
+router.post('/create', booking.create)
 
-router.get('/:id', verifyIdParam, read)
+// use as /?forwarder=example
+router.get('/', booking.find)
 
-router.post('/update', update)
+// use as /search/?bookingId=example
+router.get('/search', booking.search)
 
-router.delete('/:id', verifyIdParam, remove)
+router.get('/:id', queryParams.verifyIdParam, booking.read)
+
+router.post('/update', booking.update)
+
+router.delete('/:id', queryParams.verifyIdParam, booking.remove)
 
 export default router

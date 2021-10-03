@@ -10,9 +10,10 @@ const Contact = sequelize.define<ContactInstance>(
       autoIncrement: false,
       primaryKey: true,
       type: DataTypes.UUID,
-      unique: true
+      unique: true,
+      defaultValue: DataTypes.UUIDV4
     },
-    companyName: {
+    name: {
       allowNull: false,
       type: DataTypes.STRING
     },
@@ -23,6 +24,10 @@ const Contact = sequelize.define<ContactInstance>(
     remarks: {
       allowNull: true,
       type: DataTypes.STRING
+    },
+    vector: {
+      type: 'TSVECTOR',
+      allowNull: true
     }
   }
 )

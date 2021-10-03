@@ -10,7 +10,8 @@ const Vessel = sequelize.define<VesselInstance>(
       autoIncrement: false,
       primaryKey: true,
       type: DataTypes.UUID,
-      unique: true
+      unique: true,
+      defaultValue: DataTypes.UUIDV4
     },
     name: {
       type: DataTypes.STRING,
@@ -26,6 +27,10 @@ const Vessel = sequelize.define<VesselInstance>(
     },
     remarks: {
       type: DataTypes.STRING,
+      allowNull: true
+    },
+    vector: {
+      type: 'TSVECTOR',
       allowNull: true
     }
   }

@@ -1,17 +1,27 @@
 import { Router } from 'express'
-import { create, read, update, remove } from '../controllers/contact'
-import { verifyIdParam, verifyToken } from '../middlewares/auth'
+
+import AuthMiddlewareController from '../middlewares/auth'
+import QueryParamsMiddlewareController from '../middlewares/query-params'
+import ContactController from '../controllers/contact'
 
 const router = Router()
+const auth = new AuthMiddlewareController()
+const queryParams = new QueryParamsMiddlewareController()
+const contact = new ContactController()
 
-router.use(verifyToken)
+router.use(auth.verifyToken, auth.getUserRoleStatus, auth.verifyActiveStatus)
 
-router.post('/create', create)
+router.post('/create', contact.create)
 
-router.get('/:id', verifyIdParam, read)
+// use as /search/?name=example
+router.get('/search', contact.search)
 
-router.post('/update', update)
+router.get('/:id', queryParams.verifyIdParam, contact.read)
 
-router.delete('/:id', verifyIdParam, remove)
+router.post('/update', contact.update)
+
+router.delete('/:id', queryParams.verifyIdParam, contact.remove)
+
+router.get('/', contact.find)
 
 export default router

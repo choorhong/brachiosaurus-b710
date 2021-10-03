@@ -3,7 +3,7 @@ const { DataTypes } = require('sequelize')
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    return queryInterface.createTable('bookings', {
+    return queryInterface.createTable('shipments', {
       id: {
         allowNull: false,
         autoIncrement: false,
@@ -11,54 +11,48 @@ module.exports = {
         type: DataTypes.UUID,
         unique: true
       },
-      bookingId: {
+      status: {
         type: DataTypes.STRING,
-        allowNull: false
-      },
-      departureETD: {
-        type: DataTypes.DATE,
-        allowNull: true
-      },
-      departureLocation: {
-        type: DataTypes.STRING,
-        allowNull: true
-      },
-      arrivalETA: {
-        type: DataTypes.DATE,
-        allowNull: true
-      },
-      arrivalLocation: {
-        type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
+        defaultValue: 'CREATED'
       },
       users: {
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: false,
         defaultValue: []
       },
-      slots: {
-        type: DataTypes.STRING,
-        allowNull: true
-      },
       remarks: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      forwarderId: {
+      container: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      purchaseOrderId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+          model: 'purchaseOrders',
+          key: 'id'
+        },
+        as: 'purchaseOrder',
+        onDelete: 'SET NULL'
+      },
+      vendorId: {
         type: DataTypes.UUID,
         allowNull: true,
         references: {
           model: 'contacts',
           key: 'id'
         },
-        as: 'forwarder',
         onDelete: 'SET NULL'
       },
-      vesselId: {
+      bookingId: {
         type: DataTypes.UUID,
         allowNull: true,
         references: {
-          model: 'vessels',
+          model: 'bookings',
           key: 'id'
         },
         onDelete: 'SET NULL'
@@ -75,6 +69,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('bookings')
+    return queryInterface.dropTable('shipments')
   }
 }

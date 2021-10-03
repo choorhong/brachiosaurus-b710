@@ -9,10 +9,11 @@ export enum ContactRoles {
 }
 
 export interface ContactAttributes {
-  id: string;
-  companyName: string;
+  id?: string;
+  name: string;
   roles: ContactRoles[];
   remarks: string;
+  vector?: string;
 }
 
 export interface ContactInstance

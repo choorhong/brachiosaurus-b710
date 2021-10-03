@@ -1,62 +1,104 @@
-import { Request, Response } from 'express'
+import { RequestHandler } from 'express'
 import Contact from '../db/models/contact'
-import { generateUUID } from '../helpers'
+import { ErrorMessage } from '../types/error'
+import { filters, isEmpty } from '../utils/helpers'
+import { BaseController } from './base'
 
-export const create = async (req: Request, res: Response) => {
-  const { companyName, role, remarks } = req.body
-  if (!companyName || !role) return res.status(400).json({ err: 'Missing data' })
-  const id = generateUUID()
-  try {
-    const contact = await Contact.create({
-      id,
-      companyName,
-      roles: [role], // just one role on create?
-      remarks
-    })
-    return res.status(201).json(contact)
-  } catch (createContactErr) {
-    return res.status(500).json({ err: createContactErr.toString() })
+export default class ContactController extends BaseController {
+  public create: RequestHandler = async (req, res) => {
+    const { name, role, remarks } = req.body
+    const bodyArr = [name, role]
+    if (isEmpty(bodyArr)) return this.clientError(res, ErrorMessage.MISSING_DATA)
+
+    try {
+      const contact = await Contact.create({
+        name,
+        roles: [role],
+        remarks
+      })
+      return this.created(res, contact)
+    } catch (createError) {
+      return this.fail(res, createError)
+    }
   }
-}
 
-export const read = async (req: Request, res: Response) => {
-  const { id } = req.params
-  try {
-    const contact = await Contact.findByPk(id)
-    if (!contact) return res.status(404).send()
-    return res.status(200).json(contact)
-  } catch (getContactError) {
-    return res.status(500).json({ err: getContactError.toString() })
+  public read: RequestHandler = async (req, res) => {
+    const { id } = req.params
+
+    try {
+      const contact = await Contact.findByPk(id)
+      if (!contact) return this.notFound(res)
+      return this.ok(res, contact)
+    } catch (readError) {
+      return this.fail(res, readError)
+    }
   }
-}
 
-export const update = async (req: Request, res: Response) => {
-  const { id, companyName, roles, remarks } = req.body
-  if (!id || !companyName || !roles) return res.status(400).json({ err: 'Missing data' })
-  try {
-    const contact = await Contact.update({
-      companyName,
-      roles,
-      remarks
-    }, {
-      where: {
-        id
-      }
-    })
-    return res.status(200).json(contact)
-  } catch (updateError) {
-    return res.status(500).json({ err: updateError.toString() })
+  public update: RequestHandler = async (req, res) => {
+    const { id, name, role, remarks } = req.body
+    const bodyArr = [id, name, role]
+    if (isEmpty(bodyArr)) return this.clientError(res, ErrorMessage.MISSING_DATA)
+
+    try {
+      const [numOfUpdatedContacts, updatedContacts] = await Contact.update({
+        name,
+        roles: [role],
+        remarks
+      }, {
+        where: {
+          id
+        }
+      })
+      return this.ok(res, updatedContacts)
+    } catch (updateError) {
+      return this.fail(res, updateError)
+    }
   }
-}
 
-export const remove = async (req: Request, res: Response) => {
-  const { id } = req.params
-  try {
-    await Contact.destroy({
-      where: { id }
-    })
-    return res.status(200).send('ok')
-  } catch (error) {
-    return res.status(500).json({ err: error.toString() })
+  public remove: RequestHandler = async (req, res) => {
+    const { id } = req.params
+
+    try {
+      await Contact.destroy({
+        where: { id }
+      })
+      return this.ok(res)
+    } catch (removeError) {
+      return this.fail(res, removeError)
+    }
+  }
+
+  public find: RequestHandler = async (req, res, next) => {
+    const { name, role, page = 1 } = req.query
+    const pagination = { pg: +page, pgSize: 10 }
+    const queryObj = { name, role }
+
+    try {
+      const contacts = await Contact.findAndCountAll({
+        where: filters('contact', queryObj),
+        offset: (pagination.pg - 1) * pagination.pgSize,
+        limit: pagination.pgSize
+      })
+      if (!contacts) return this.notFound(res)
+      return this.ok(res, contacts)
+    } catch (error) {
+      return this.fail(res, error)
+    }
+  }
+
+  public search: RequestHandler = async (req, res) => {
+    const { name } = req.query
+    if (!name) return this.fail(res, ErrorMessage.MISSING_DATA)
+    const term = name.toString()
+    if (term.length < 3) return this.fail(res, ErrorMessage.SHORT_LENGTH)
+    try {
+      const contact = await Contact.sequelize?.query('SELECT * FROM contacts WHERE vector @@ to_tsquery(:query);', {
+        replacements: { query: `${term.replace(' ', '+')}:*` },
+        type: 'SELECT'
+      })
+      return this.ok(res, contact)
+    } catch (error) {
+      return this.fail(res, error)
+    }
   }
 }

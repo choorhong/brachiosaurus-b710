@@ -2,11 +2,12 @@
 import { Model } from 'sequelize/types'
 
 export interface VesselAttributes {
-  id: string;
+  id?: string;
   name: string;
   earliestReturningDate: Date;
   cutOff: Date;
   remarks: string;
+  vector?: string;
 }
 
 export interface VesselInstance

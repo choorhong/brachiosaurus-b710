@@ -1,22 +1,30 @@
 /* eslint-disable no-unused-vars */
 import { Model } from 'sequelize/types'
-import { ContactInstance } from './contact';
-import { VesselInstance } from './vessel';
+import { ContactInstance } from './contact'
+import { VesselInstance } from './vessel'
+
+interface DateLocation {
+  date: Date;
+  location: string;
+}
 
 export interface BookingAttributes {
-  id: string;
+  id?: string;
   bookingId: string;
   forwarderId?: string;
   forwarder?: ContactInstance;
-  departureETD: Date;
-  departureLocation: string;
-  arrivalETA: Date;
-  arrivalLocation: string;
+  departure: DateLocation;
+  arrival: DateLocation;
+  departureETD?: Date; // TBD
+  departureLocation?: string; // TBD
+  arrivalETA?: Date; // TDB
+  arrivalLocation?: string; // TDB
   vesselId?: string;
   vessel?: VesselInstance;
-  users: string[];
-  slots: string; // what is this?
+  users?: string[];
+  slots: number;
   remarks: string;
+  vector?: string;
 }
 
 export interface BookingInstance
